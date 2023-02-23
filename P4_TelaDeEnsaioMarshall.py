@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import animation
 import pymysql
-from subprocess import run
+from subprocess import run                                            #biblioteca para mudar de pagina usando diretorios
 """=====================================================================================================================
                                           VARIAVEIS DO PROGRAMA
 ====================================================================================================================="""
@@ -119,20 +119,24 @@ def ParaMar():
     ax = figura.add_subplot(111)
     canva = FigureCanvasTkAgg(figura, tela4)
     canva.get_tk_widget().place(width=1068, height=482, x=250, y=130)
-    send_byte(254)                                         #Desliga a prensa imediatamente (envia 254 pela porta serial)
-    cursor.execute("TRUNCATE TABLE teste;")                                       #ESTA FUNÇÃO TALVEZ ESTEJA ERRADA AQUI
+    cursor.execute("TRUNCATE TABLE teste;")
     for r in range(0,len(x1)):
         sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
         sql_data = [x1[r],y2[r]]
         cursor.execute(sql, sql_data)
         conexao.commit()
+    send_byte(254)  # Desliga a prensa imediatamente (envia 254 pela porta serial)
 
 def Voltar():
     tela4.destroy()                                                                                  #Apaga a tela atual
     run("P1_TelaPrincipal.exe", shell=True)                                                       #abre a tela principal
 
 def Relatorio():
-    pass
+    messagebox.showwarning("RELATORIO GERADO COM SUCESSO",                     # CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
+                           "O relatorio foi criado e se encontra na pasta de destino")
+    run("P6_Relatorio.exe", shell=True)                                                           #abre a tela principal
+    tela4.destroy()                                                                                  #Apaga a tela atual
+    run("P1_TelaPrincipal.exe", shell=True)
 
 
 def Buscar():

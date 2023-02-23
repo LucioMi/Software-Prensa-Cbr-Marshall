@@ -23,6 +23,8 @@ def Salvar():                                                 #FUÇÃO PARA SALV
         sql_data = [x1, x2, x3, x4, x5, x6, x7]
         cursor.execute(sql,sql_data)
         conexao.commit()
+        tela2.destroy()
+        run("P4_TelaDeEnsaioMarshall.exe", shell=True)
     except:
         messagebox.showwarning("ERRO!!!!!",                                     #CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
                                "Verifique se os dados foram preenchidos corretamente")
@@ -77,10 +79,10 @@ label_Asfalto.grid(row=6,column=0)
 Teor_Asfalt = Entry(tela2, width=20)
 Teor_Asfalt.grid(row=6,column=1)
 
-B_Salvar = Button(tela2,text="SALVAR",bg="green", command=Salvar,font=("Arial",20))
+B_Salvar = Button(tela2,text="SALVAR",bg="green", command=Salvar, font=("Arial",20))
 B_Salvar.grid(row=8,column=0)
 
-B_Voltar = Button(tela2,text="VOLTAR",bg="red",font=("Arial",20))
+B_Voltar = Button(tela2,text="VOLTAR",bg="red",command=Voltar, font=("Arial",20))
 B_Voltar.grid(row=8,column=2)
 
 tela2.mainloop()

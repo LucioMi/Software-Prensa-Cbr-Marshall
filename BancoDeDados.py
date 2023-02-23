@@ -69,3 +69,4 @@ cursor.execute("SELECT forca_t FROM teste WHERE id_teste=2;")  #SELECIONA DADOS 
 resultado = cursor.fetchall()           #o metodo .fetchall() retorna uma tupla
 print(resultado)
 
+#auto-py-to-exe (transforma python em executavel)

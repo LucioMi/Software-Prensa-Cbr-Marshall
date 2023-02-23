@@ -45,7 +45,7 @@ cursor.execute(f"SELECT forca_t FROM teste;")                                   
 forca1 = cursor.fetchall()                        #Salva os valores selecionados em uma variavel(a variavel é uma tupla)
 cursor.execute(f"SELECT deslocamento_t FROM teste;")
 deslocamento1 = cursor.fetchall()
-Cont = len(forca)                                                              #Pega o tamanho da tupla para usar no for
+Cont = len(forca1)                                                              #Pega o tamanho da tupla para usar no for
 
 for y in range(0,Cont):                                             #Salva os dados string do BD como float em uma lista
     var = str(forca1[y])                                              #Transforma em string para poder manipular a tupla

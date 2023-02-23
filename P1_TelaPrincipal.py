@@ -9,13 +9,11 @@ from subprocess import run                                                      
 ====================================================================================================================="""
 def MAR():
     tela1.destroy()
-    run("P2_FormularioMarshall.exe", shell=True)                       #auto-py-to-exe (transforma python em executavel)
+    run("P2_FormularioMarshall.exe", shell=True)
 
 def CBR():
     tela1.destroy()
     run("P3_FormularioCbr.exe", shell=True)
-
-
 """=====================================================================================================================
                                           CRIAÇÃO DE WIDGETS E LAYOUT DA TELA
 ====================================================================================================================="""
