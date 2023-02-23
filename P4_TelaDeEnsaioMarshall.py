@@ -14,7 +14,7 @@ import pymysql
 """=====================================================================================================================
                                           VARIAVEIS DO PROGRAMA
 ====================================================================================================================="""
-Master = Tk()
+tela4 = Tk()
 conexao = pymysql.connect ( host='localhost', user='root', passwd='',database='db_prensa_software')
 cursor = conexao.cursor()
 SearchingPorts = True
@@ -101,7 +101,7 @@ def LigaMar():
     if F_Auxiliares.is_open():
         figura = plt.Figure(figsize=(8, 4), dpi=60)
         ax = figura.add_subplot(111)
-        canva = FigureCanvasTkAgg(figura, Master)
+        canva = FigureCanvasTkAgg(figura, tela4)
         canva.get_tk_widget().place(width=1068, height=482, x=250, y=130)
         anima = animation.FuncAnimation(figura, animar, interval=1000, frames=10)
     else:
@@ -115,7 +115,7 @@ def ParaMar():
     global y2
     figura = plt.Figure(figsize=(8, 4), dpi=60)
     ax = figura.add_subplot(111)
-    canva = FigureCanvasTkAgg(figura, Master)
+    canva = FigureCanvasTkAgg(figura, tela4)
     canva.get_tk_widget().place(width=1068, height=482, x=250, y=130)
     cursor.execute("TRUNCATE TABLE teste;")
     for r in range(0,len(x1)):
@@ -177,23 +177,23 @@ def animar(i):
                      CRIAÇÃO DE WIDGETS, LAYOUT DA TELA, CONEXÃO COM O BD E COMUNICAÇÃO SERIAL
 ====================================================================================================================="""
 img_fundo = PhotoImage(file="Tela_Ensaio_Marshall.png")
-label_fundo = Label(Master,image=img_fundo)
+label_fundo = Label(tela4,image=img_fundo)
 label_fundo.place(x=0,y=0)
 
-B_LigaMar = Button(Master,text="INICIAR ENSAIO",bg="dark green",bd=4,font=("Arial",18),command=LigaMar)
+B_LigaMar = Button(tela4,text="INICIAR ENSAIO",bg="dark green",bd=4,font=("Arial",18),command=LigaMar)
 B_LigaMar.place(x=19,y=507)
-B_ParaMar = Button(Master,text="PARAR ENSAIO",bg="red",font=("Arial",18),bd=5,command=ParaMar)
+B_ParaMar = Button(tela4,text="PARAR ENSAIO",bg="red",font=("Arial",18),bd=5,command=ParaMar)
 B_ParaMar.place(x=19,y=569)
-B_Voltar = Button(Master,text="      VOLTAR      ",bd=4,bg="yellow",font=("Arial",18),command=Voltar)
+B_Voltar = Button(tela4,text="      VOLTAR      ",bd=4,bg="yellow",font=("Arial",18),command=Voltar)
 B_Voltar.place(x=19,y=631)
-B_Relatorio = Button(Master,text=" RELATORIO ",bd=4,bg="white",font=("Arial",18),command=Relatorio)
+B_Relatorio = Button(tela4,text=" RELATORIO ",bd=4,bg="white",font=("Arial",18),command=Relatorio)
 B_Relatorio.place(x=1169,y=630)
-B_Buscar = Button(Master,text="Buscar",bd=4,bg="blue",font=("Arial",18),command=Buscar)
+B_Buscar = Button(tela4,text="Buscar",bd=4,bg="blue",font=("Arial",18),command=Buscar)
 B_Buscar.place(width=108, height=38, x=71, y=397)
-B_Conectar = Button(Master,text="Conectar",bd=4,bg="blue",font=("Arial",16),command=Conectar)
+B_Conectar = Button(tela4,text="Conectar",bd=4,bg="blue",font=("Arial",16),command=Conectar)
 B_Conectar.place(width=108, height=39, x=71, y=441)
 
-port_list = Listbox(Master,height=1,width=7,bd=10,font="Arial 10",bg="black",fg="#008000",    #Cria widget do tipo lista
+port_list = Listbox(tela4,height=1,width=7,bd=10,font="Arial 10",bg="black",fg="#008000",    #Cria widget do tipo lista
                     highlightcolor="black",highlightthickness=0,highlightbackground="black")
 port_list.place(width=104, height=132, x=71, y=253)
 port_list.insert(END,"----")                                      #Define oque vai aparecer quando a lista estiver vazia
@@ -206,11 +206,11 @@ searching_ports.start()
 receiving_serial = threading.Thread(target=f_receiving_serial)                    #Verifica se a dados seriais à receber
 receiving_serial.daemon = True
 
-messagem = F_Auxiliares.Messege1(Master)
+messagem = F_Auxiliares.Messege1(tela4)
 
-Master.title("Ensaio Marshall")
-Master.iconbitmap(default='tela1.ico')
-Master.geometry('1366x705+-11+1')
+tela4.title("Ensaio Marshall")
+tela4.iconbitmap(default='tela1.ico')
+tela4.geometry('1366x705+-11+1')
 
 mainloop()
 """=====================================================================================================================            
