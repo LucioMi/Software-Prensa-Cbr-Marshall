@@ -27,9 +27,25 @@ x = []
 y = []
 x1 = []
 y2 = []
+max = 0.0
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
+def pararEnsaio():                        #####################Desliga a prensa caso o peso maximo abaixe mais de 500 kg
+    global x1
+    for h in range(0, len(x1)):
+        if x1[h] > max:
+            max = x1[h]
+        if max > (x1[h] + 500.01):
+            cursor.execute("TRUNCATE TABLE teste;")
+            for r in range(0, len(x1)):
+                sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
+                sql_data = [x1[r], y2[r]]
+                cursor.execute(sql, sql_data)
+                conexao.commit()
+            send_byte(253)                              #Retorna a prensa para a posição 0 (envia 253 pela porta serial)
+
+
 def send_byte(byte):
     if F_Auxiliares.is_open():
         F_Auxiliares.write_byte(byte)
@@ -125,7 +141,7 @@ def ParaMar():
         sql_data = [x1[r],y2[r]]
         cursor.execute(sql, sql_data)
         conexao.commit()
-    send_byte(254)  # Desliga a prensa imediatamente (envia 254 pela porta serial)
+    send_byte(254)                                        # Desliga a prensa imediatamente (envia 254 pela porta serial)
 
 def Voltar():
     tela4.destroy()                                                                                  #Apaga a tela atual
@@ -181,6 +197,7 @@ def animar(i):
         ax.set_ylabel('FORÇA (Kg/F)',fontsize=22)
         x1 = x
         y2 = y
+        pararEnsaio()                                                       ###########################################
 """=====================================================================================================================
                      CRIAÇÃO DE WIDGETS, LAYOUT DA TELA, CONEXÃO COM O BD E COMUNICAÇÃO SERIAL
 ====================================================================================================================="""
