@@ -36,14 +36,18 @@ def pararEnsaio():                        #####################Desliga a prensa 
     for h in range(0, len(x1)):
         if x1[h] > max:
             max = x1[h]
+            send_byte(251)          # Retorna a prensa para a posição 0 (envia 253 pela porta serial) (DESLIGA O LED 13)
         if max > (x1[h] + 500.01):
+            send_byte(253)              #Retorna a prensa para a posição 0 (envia 253 pela porta serial) (LIGA O LED 13)
+
+            """
             cursor.execute("TRUNCATE TABLE teste;")
             for r in range(0, len(x1)):
                 sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
                 sql_data = [x1[r], y2[r]]
                 cursor.execute(sql, sql_data)
                 conexao.commit()
-            send_byte(253)                              #Retorna a prensa para a posição 0 (envia 253 pela porta serial)
+            """
 
 
 def send_byte(byte):
