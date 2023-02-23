@@ -13,7 +13,7 @@ forca = []
 forca1 = []
 deslocamento = []
 deslocamento1 = []
-pastaApp = os.path.dirname("PdfRelatorio\Relatorio1.pdf")   #caminho da pasta do pdf
+pastaApp = os.path.dirname("PdfRelatorio\Relatorio1.pdf")                                       #caminho da pasta do pdf
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
