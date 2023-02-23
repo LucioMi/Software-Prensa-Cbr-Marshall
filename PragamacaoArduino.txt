@@ -13,7 +13,6 @@ void setup() {
   pinMode(DesPin, INPUT);
   pinMode(R1Pin, OUTPUT);
   pinMode(R2Pin, OUTPUT);
-  pinMode(13, OUTPUT);
   Serial.begin(256000);
 }
 

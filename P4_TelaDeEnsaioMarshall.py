@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import animation
 import pymysql
+from subprocess import run
 """=====================================================================================================================
                                           VARIAVEIS DO PROGRAMA
 ====================================================================================================================="""
@@ -35,7 +36,7 @@ def send_byte(byte):
     else:
         messagem.botton("Por favor, abra a porta serial!","yellow")
 
-def send_Funcionamento():          #C=cbr, M=marshall, P=parar
+def send_Funcionamento():
     if F_Auxiliares.is_open():
         DadosTx = int(F_Auxiliares.Funcionamento_Modo)
         for idx in range(0, len(DadosTx)):
@@ -97,8 +98,9 @@ def f_searching_ports():
 
 def LigaMar():
     global ax
-    global anima             #talvez isso seja atoa
+    global anima                                                                                  #talvez isso seja atoa
     if F_Auxiliares.is_open():
+        send_byte(251)                                    #Liga a prensa em estado marshall(envia 251 pela porta serial)
         figura = plt.Figure(figsize=(8, 4), dpi=60)
         ax = figura.add_subplot(111)
         canva = FigureCanvasTkAgg(figura, tela4)
@@ -117,7 +119,8 @@ def ParaMar():
     ax = figura.add_subplot(111)
     canva = FigureCanvasTkAgg(figura, tela4)
     canva.get_tk_widget().place(width=1068, height=482, x=250, y=130)
-    cursor.execute("TRUNCATE TABLE teste;")
+    send_byte(254)                                         #Desliga a prensa imediatamente (envia 254 pela porta serial)
+    cursor.execute("TRUNCATE TABLE teste;")                                       #ESTA FUNÇÃO TALVEZ ESTEJA ERRADA AQUI
     for r in range(0,len(x1)):
         sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
         sql_data = [x1[r],y2[r]]
@@ -125,10 +128,11 @@ def ParaMar():
         conexao.commit()
 
 def Voltar():
-    send_byte(254)
+    tela4.destroy()                                                                                  #Apaga a tela atual
+    run("P1_TelaPrincipal.exe", shell=True)                                                       #abre a tela principal
 
 def Relatorio():
-    send_byte(253)                                              #FUNÇÃO FUNCIONA ESTA ENVIANDO DADOS PARA A PORTA SERIAL
+    pass
 
 
 def Buscar():
@@ -138,7 +142,7 @@ def Buscar():
 def Conectar():
     global GetForcaFlag
     if F_Auxiliares.Port == 'COMx':
-        messagem.botton('BUSCA FINALIZADA, escolha COM/BAUD', "yellow")
+        messagem.botton('BUSCA FINALIZADA, escolha a porta COM', "yellow")
         return None
     if not F_Auxiliares.is_open():
         F_Auxiliares.open()

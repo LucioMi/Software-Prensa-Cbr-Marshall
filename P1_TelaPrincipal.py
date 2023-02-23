@@ -9,10 +9,11 @@ from subprocess import run                                                      
 ====================================================================================================================="""
 def MAR():
     tela1.destroy()
-    run("P2_FormularioMarshall.py", shell=True)
+    run("P2_FormularioMarshall.exe", shell=True)                       #auto-py-to-exe (transforma python em executavel)
 
 def CBR():
-    pass
+    tela1.destroy()
+    run("P3_FormularioCbr.exe", shell=True)
 
 
 """=====================================================================================================================
@@ -36,13 +37,8 @@ tela1.iconbitmap(default="tela1.ico")                               #define o ic
 tela1.geometry('1366x705+-11+1')                                               #define o tamanho que a tela1 vai começar
 #tela1.wm_resizable(width=FALSE,height=FALSE)          #define que não é possivel alterar ou maximizar o tamanho da tela
 #tela1.bind('<Button-1>', mouseBtnEsquerdo)          #cria uma conecção entre o envento de clicar o botão e a sua função
-"""
-frame1 = Frame(tela1)
-frame1.place(width=1366,height=705)
 
-frame2 = Frame(tela1)
-frame2.place(width=1366,height=705)
-"""
+
 tela1.mainloop()
 """=====================================================================================================================            
                                                FIM DO PROGRAMA

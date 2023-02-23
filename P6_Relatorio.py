@@ -33,7 +33,7 @@ def criar_pdf():
     cnv.drawString(mm_ponto(10), mm_ponto(262), f'RELAÇÃO BETUME/VAZIOS:.....{Betume_v} ')
     cnv.drawString(mm_ponto(10), mm_ponto(255), f'ESTABILIDADE:.............{Estabilidad} ')
     cnv.drawString(mm_ponto(10), mm_ponto(248), f'TEOR DE ASFALTO:.......{Teor_Asfalt} ')
-    cnv.save()    #salva no pdf
+    cnv.save()                                                                                             #salva no pdf
 """=====================================================================================================================
                                     CONEXÃO COM BD E TRATAMENTO DE DADOS
 ====================================================================================================================="""
@@ -42,16 +42,16 @@ conexao = pymysql.connect ( host='localhost',
 cursor = conexao.cursor()
 
 cursor.execute(f"SELECT forca_t FROM teste;")                                        #Seleciona os dados da tabela do BD
-forca1 = cursor.fetchall()                         #Salva os valores selecionados em uma variavel(a variavel é uma tupla)
+forca1 = cursor.fetchall()                        #Salva os valores selecionados em uma variavel(a variavel é uma tupla)
 cursor.execute(f"SELECT deslocamento_t FROM teste;")
 deslocamento1 = cursor.fetchall()
-Cont = len(forca)                                                             #Pega o tamanho da tupla para usar no for
+Cont = len(forca)                                                              #Pega o tamanho da tupla para usar no for
 
 for y in range(0,Cont):                                             #Salva os dados string do BD como float em uma lista
-    var = str(forca1[y])                                               #Transforma em string para poder manipular a tupla
+    var = str(forca1[y])                                              #Transforma em string para poder manipular a tupla
     var = var.replace("(", "")                        #Tira os dados desnecessarios da string para ela poder virar float
     var = float(var.replace(",)", ""))
-    forca.append(var)                                                                     #Cria a lista definitivamente
+    forca.append(var)                                                                      #Cria a lista definitivamente
     var = str(deslocamento1[y])
     var = var.replace("(", "")
     var = float(var.replace(",)", ""))
