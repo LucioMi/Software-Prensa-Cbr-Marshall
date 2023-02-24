@@ -5,9 +5,9 @@ const int DesPin = A2;              //pino do sensor de deslocamento
 const int R1Pin = 2;               //pino do rele de comando
 const int R2Pin = 4;               //pino do rele de comando
 float forca, deslocamento, deslocamento1;         //variaveis que guardaram força e deslocamento
-int Estado;                         //define estado 251=Marshall, 252=Cbr, 253=Parada, 254=Retona à posição 0 do sensor de deslocamento
-unsigned long tempoEspera=0;       //Tempo de esperera para o millis
-unsigned long tempoAtual = 0;       //Tempo Atual para o millis
+int Estado;                                       //define estado 251=Marshall, 252=Cbr, 253=Parada, 254=Retona à posição 0 do sensor de deslocamento
+unsigned long tempoEspera=0;                      //Tempo de esperera para o millis
+unsigned long tempoAtual = 0;                      //Tempo Atual para o millis
 
 void setup() {
   // declara sensores como entrada reles como saida e inicia a comunicação serial
@@ -16,8 +16,6 @@ void setup() {
   pinMode(R1Pin, OUTPUT);
   pinMode(R2Pin, OUTPUT);
   Serial.begin(256000);
-
-  pinMode(13, OUTPUT);
 }
 
 void loop() {
@@ -37,8 +35,7 @@ void loop() {
     deslocamento1 = map(analogRead(DesPin), 0, 1023, 0, 2500);
     if ( deslocamento1 > 0) {                                                                           //retorna a prensa se o deslocamento estiver maior do que 0     
       digitalWrite(R1Pin, HIGH);
-      digitalWrite(R2Pin, HIGH);
-      digitalWrite(13, HIGH);     
+      digitalWrite(R2Pin, HIGH);  
     }else{
       Estado = 254;
     }
@@ -46,9 +43,7 @@ void loop() {
   else {
     digitalWrite(R1Pin, LOW);     //Desliga a prensa caso um valor diferente dos acima seja recebido
     digitalWrite(R2Pin, LOW);
-    digitalWrite(13, LOW);
   }
-
 //Envia os valores de força e deslocamento recebido pelos sensores por meio de comunicação serial (valores convertidos para ser compativel com o software)
   if((tempoAtual-tempoEspera)>300) {                                                         //Temporizador de 300 milissegundos usando a função millis()
     tempoEspera = tempoAtual;

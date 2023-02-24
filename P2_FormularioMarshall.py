@@ -29,7 +29,6 @@ def Salvar():                                                 #FUÇÃO PARA SALV
         messagebox.showwarning("ERRO!!!!!",                                     #CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
                                "Verifique se os dados foram preenchidos corretamente")
 
-
 def Voltar():
     tela2.destroy()
     run("P1_TelaPrincipal.exe", shell=True)

@@ -27,8 +27,7 @@ x = []
 y = []
 x1 = []
 y2 = []
-max = -100.0
-var = 0
+max = -100.0                                                                #para saber o valor maximo de pico da prensa
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
@@ -115,25 +114,29 @@ def LigaMar():
 def ParaMar():
     global ax
     global anima
-    global x1
-    global y2
     figura = plt.Figure(figsize=(8, 4), dpi=60)
     ax = figura.add_subplot(111)
     canva = FigureCanvasTkAgg(figura, tela4)
     canva.get_tk_widget().place(width=1068, height=482, x=250, y=130)
-    cursor.execute("TRUNCATE TABLE teste;")
-    for r in range(0,len(x1)):
-        sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
-        sql_data = [x1[r],y2[r]]
-        cursor.execute(sql, sql_data)
-        conexao.commit()
-    send_byte(254)                                        # Desliga a prensa imediatamente (envia 254 pela porta serial)
+    send_byte(254)                                         #Desliga a prensa imediatamente (envia 254 pela porta serial)
+    messagebox.showwarning("ENSAIO ENCERRADO",                                  #CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
+                           "O ensaio foi encerrado manualmente")
+    tela4.destroy()                                                                                  #Apaga a tela atual
+    run("P1_TelaPrincipal.exe", shell=True)
 
 def Voltar():
     tela4.destroy()
     run("P1_TelaPrincipal.exe", shell=True)
 
 def Relatorio():
+    global x1
+    global y2
+    cursor.execute("TRUNCATE TABLE teste;")
+    for r in range(0,len(x1)):
+        sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
+        sql_data = [x1[r],y2[r]]
+        cursor.execute(sql, sql_data)
+        conexao.commit()
     messagebox.showwarning("RELATORIO GERADO COM SUCESSO",                     # CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
                            "O relatorio foi criado e se encontra na pasta de destino")
     run("P6_Relatorio.exe", shell=True)                                                           #abre a tela principal
@@ -166,6 +169,8 @@ def animar(i):
     global cont
     global x1
     global y2
+    global max
+    global tam
     if cont == 0:                                          #lembrar de reiniciar esse contador em alguma parte do codigo
         x.clear()
         y.clear()
@@ -182,25 +187,20 @@ def animar(i):
         ax.set_ylabel('FORÇA (Kg/F)',fontsize=22)
         x1 = x
         y2 = y
-        pararEnsaio()
+    max = None
+    for num in x1:
+        if (max is None or num > max):                                   #pega o valor maximo da lista e manda pra "max"
+            max = num
+    tam = len(x1)                                                             #pega o tamanho do vetor e manda pra "tam"
+    pararAutomatico()
 
-def pararEnsaio():                           #Desliga a prensa automaticamente caso o peso maximo abaixe mais de 1500 kg
-    global x1
+def pararAutomatico():
     global max
-    global var
-    for h in range(0, len(x1)):
-        if x1[h] > max:          #Se o valor lido for maior que o maximo de força registrado ele atualiza o valor maximo
-            max = x1[h]
-            print(f'true: {x1[h]}------max={max}')
-    for g in range(0,len(x1)):
-        if x1[g] > x1[g-1]:
-            var = x1[g]
-    if max > (var+1600.01):
-        send_byte(253)                                              #retorna a prensa(retorno automatico no arduino)
-        print(f'false: {x1[h]}------max={max}')
-        tela4.destroy()
-
-
+    global tam
+    global x1
+    if max > (x1[tam-1]+1500):
+        send_byte(253)
+        Relatorio()
 """=====================================================================================================================
                      CRIAÇÃO DE WIDGETS, LAYOUT DA TELA, CONEXÃO COM O BD E COMUNICAÇÃO SERIAL
 ====================================================================================================================="""
@@ -208,14 +208,12 @@ img_fundo = PhotoImage(file="Tela_Ensaio_Marshall.png")
 label_fundo = Label(tela4,image=img_fundo)
 label_fundo.place(x=0,y=0)
 
-B_LigaMar = Button(tela4,text="INICIAR ENSAIO",bg="dark green",bd=4,font=("Arial",18),command=LigaMar)
+B_LigaMar = Button(tela4,text="INICIAR ENSAIO",bg="dark green",bd=4,font=("Arial",18),command=LigaMar)           #botoes
 B_LigaMar.place(x=19,y=507)
 B_ParaMar = Button(tela4,text="PARAR ENSAIO",bg="red",font=("Arial",18),bd=5,command=ParaMar)
 B_ParaMar.place(x=19,y=569)
 B_Voltar = Button(tela4,text="      VOLTAR      ",bd=4,bg="yellow",font=("Arial",18),command=Voltar)
 B_Voltar.place(x=19,y=631)
-B_Relatorio = Button(tela4,text=" RELATORIO ",bd=4,bg="white",font=("Arial",18),command=Relatorio)
-B_Relatorio.place(x=1169,y=630)
 B_Buscar = Button(tela4,text="Buscar",bd=4,bg="blue",font=("Arial",18),command=Buscar)
 B_Buscar.place(width=108, height=38, x=71, y=397)
 B_Conectar = Button(tela4,text="Conectar",bd=4,bg="blue",font=("Arial",16),command=Conectar)

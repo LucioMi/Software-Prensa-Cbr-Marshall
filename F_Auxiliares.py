@@ -54,7 +54,7 @@ class Messege1:
         self.label_deslocamento = Label(Master, text="0.0  mm", font="Arial 22 bold", bg="black", fg="yellow")
         self.label_deslocamento.place(width=249, height=44, x=1080, y=66)
         self.label_mensagem = Label(Master, text="---", font="Arial 22 bold", bg="black", fg="yellow")
-        self.label_mensagem.place(width=904, height=57, x=245, y=629)
+        self.label_mensagem.place(width=1100, height=57, x=245, y=629)
 
     def port(self, color, port):
         global Port
