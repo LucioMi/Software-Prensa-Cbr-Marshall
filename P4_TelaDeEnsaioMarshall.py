@@ -27,29 +27,11 @@ x = []
 y = []
 x1 = []
 y2 = []
-max = 0.0
+max = -100.0
+var = 0
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
-def pararEnsaio():                        #####################Desliga a prensa caso o peso maximo abaixe mais de 500 kg
-    global x1
-    for h in range(0, len(x1)):
-        if x1[h] > max:
-            max = x1[h]
-            send_byte(251)          # Retorna a prensa para a posição 0 (envia 253 pela porta serial) (DESLIGA O LED 13)
-        if max > (x1[h] + 500.01):
-            send_byte(253)              #Retorna a prensa para a posição 0 (envia 253 pela porta serial) (LIGA O LED 13)
-
-            """
-            cursor.execute("TRUNCATE TABLE teste;")
-            for r in range(0, len(x1)):
-                sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
-                sql_data = [x1[r], y2[r]]
-                cursor.execute(sql, sql_data)
-                conexao.commit()
-            """
-
-
 def send_byte(byte):
     if F_Auxiliares.is_open():
         F_Auxiliares.write_byte(byte)
@@ -148,8 +130,8 @@ def ParaMar():
     send_byte(254)                                        # Desliga a prensa imediatamente (envia 254 pela porta serial)
 
 def Voltar():
-    tela4.destroy()                                                                                  #Apaga a tela atual
-    run("P1_TelaPrincipal.exe", shell=True)                                                       #abre a tela principal
+    tela4.destroy()
+    run("P1_TelaPrincipal.exe", shell=True)
 
 def Relatorio():
     messagebox.showwarning("RELATORIO GERADO COM SUCESSO",                     # CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
@@ -157,7 +139,6 @@ def Relatorio():
     run("P6_Relatorio.exe", shell=True)                                                           #abre a tela principal
     tela4.destroy()                                                                                  #Apaga a tela atual
     run("P1_TelaPrincipal.exe", shell=True)
-
 
 def Buscar():
     global SearchingPorts
@@ -201,7 +182,25 @@ def animar(i):
         ax.set_ylabel('FORÇA (Kg/F)',fontsize=22)
         x1 = x
         y2 = y
-        pararEnsaio()                                                       ###########################################
+        pararEnsaio()
+
+def pararEnsaio():                           #Desliga a prensa automaticamente caso o peso maximo abaixe mais de 1500 kg
+    global x1
+    global max
+    global var
+    for h in range(0, len(x1)):
+        if x1[h] > max:          #Se o valor lido for maior que o maximo de força registrado ele atualiza o valor maximo
+            max = x1[h]
+            print(f'true: {x1[h]}------max={max}')
+    for g in range(0,len(x1)):
+        if x1[g] > x1[g-1]:
+            var = x1[g]
+    if max > (var+1600.01):
+        send_byte(253)                                              #retorna a prensa(retorno automatico no arduino)
+        print(f'false: {x1[h]}------max={max}')
+        tela4.destroy()
+
+
 """=====================================================================================================================
                      CRIAÇÃO DE WIDGETS, LAYOUT DA TELA, CONEXÃO COM O BD E COMUNICAÇÃO SERIAL
 ====================================================================================================================="""
