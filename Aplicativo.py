@@ -1,5 +1,5 @@
 from subprocess import run
-from pathlib import Path
 
-FILE = ("//P1_TelaPrincipal.exe")
-run("FILE", shell=True)
+
+run(r"C:\Users\User\PycharmProjects\Prensa_Cbr_Marshall\Prensa_Cbr_Marshall\Funcionalidades\P2_FormularioMarshall.exe",
+    shell=True)
