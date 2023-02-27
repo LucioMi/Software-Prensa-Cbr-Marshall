@@ -16,7 +16,6 @@ deslocamento = []
 deslocamento1 = []
 data_atual = datetime.now()
 data_str = data_atual.strftime('Relatorio_%d-%m-%Y_%H-%M')
-#pastaApp = os.path.dirname("PdfRelatorio\Relatorio1.pdf")
 pastaApp = os.path.dirname(f'PdfRelatorio\{data_str}.pdf')                                      #caminho da pasta do pdf
 """=====================================================================================================================
                                                   FUNÇÕES
@@ -25,7 +24,6 @@ def mm_ponto(mm):                                                          #conv
     return mm/0.352777
 
 def criar_pdf():
-    #cnv = canvas.Canvas(pastaApp+"\Relatorio1.pdf", pagesize=A4)   #pasta,nome e tamanho do pdf (aqui muda qual pdf vai salvar)
     cnv = canvas.Canvas(pastaApp + f'\{data_str}.pdf',
                         pagesize=A4)  # pasta,nome e tamanho do pdf (aqui muda qual pdf vai salvar)
     cnv.drawImage("grafico1_relatorio.png", #coloca a imagem de fundo no ponto especolhido e escolhe o tamnaho da imagem
