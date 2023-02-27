@@ -16,7 +16,7 @@ deslocamento = []
 deslocamento1 = []
 data_atual = datetime.now()
 data_str = data_atual.strftime('Relatorio_%d-%m-%Y_%H-%M')
-pastaApp = os.path.dirname(f'PdfRelatorio\{data_str}.pdf')                                      #caminho da pasta do pdf
+pastaApp = os.path.dirname(f'../Relatorios\{data_str}.pdf')                                      #caminho da pasta do pdf
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
@@ -28,7 +28,7 @@ def criar_pdf():
                         pagesize=A4)  # pasta,nome e tamanho do pdf (aqui muda qual pdf vai salvar)
     cnv.drawImage("grafico1_relatorio.png", #coloca a imagem de fundo no ponto especolhido e escolhe o tamnaho da imagem
                   mm_ponto(0), mm_ponto(140),width=mm_ponto(150),height=mm_ponto(100))
-    cnv.drawString(mm_ponto(10),mm_ponto(290),f'MASSA ESPECIFICA APARENTE:....{M_Esp_Aparente}')         #escreve no pdf
+    cnv.drawString(mm_ponto(10), mm_ponto(290),f'MASSA ESPECIFICA APARENTE:....{M_Esp_Aparente}')         #escreve no pdf
     cnv.drawString(mm_ponto(10), mm_ponto(283), f'MASSA ESPECIFICA MAXIMA:.........{M_Esp_Max}')
     cnv.drawString(mm_ponto(10), mm_ponto(276), f'VOLUME DE VAZIOS:...........{Vazios}')
     cnv.drawString(mm_ponto(10), mm_ponto(269), f'VAZIOS AGREGADO MINEIRAL:......{V_Agragado}')
