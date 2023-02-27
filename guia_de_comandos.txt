@@ -13,7 +13,7 @@ cursor = conexao.cursor()         #conecta com o bd
 for x in cursor:                #printa os dados da coneCção com o bd
     print(x)
 """=====================================================================================================================
-                                        FUNÇÕES DE CRIAÇÃO                                                   
+                                        FUNÇÕES DE CRIAÇÃO
 ====================================================================================================================="""
 cursor.execute("CREATE DATABASE db_prensa_software")   #cria um banco de dados
 
