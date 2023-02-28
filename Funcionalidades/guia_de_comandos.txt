@@ -49,13 +49,12 @@ cursor.execute(sql, sql_data)
 conexao.commit()
 
 cursor.execute("TRUNCATE TABLE teste;")   #APAGA TODAS AS LINHA DE UMA TABELA
+cursor.execute("drop table 'nome da tabela' ")   #apaga de vez da memoria
 """=====================================================================================================================
                                       FUNCÕES DE SELEÇÃO
 ====================================================================================================================="""
 #SELECT `id_grafico`, `M_Aparente`, `M_Max`, `Vazio`, `Agregado`, `Betume`, `Estabilidade`, `Teor_Asfalto`
 #FROM `db_prensa_software`.`grafico`
-
-
 
 
 cursor.execute("SELECT forca_t FROM teste WHERE id_teste=2;") #SELECINA TODAS AS LINHAS DA TABELA

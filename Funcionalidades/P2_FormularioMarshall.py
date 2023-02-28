@@ -10,6 +10,8 @@ from subprocess import run
 ====================================================================================================================="""
 def Salvar():                                                 #FUÇÃO PARA SALVAR OS VALORES DIGITADOS PELO USUARIO NO BD
     try:
+        conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
+        cursor = conexao.cursor()  # CONEXÃO COM O BANCO DE DADOS DESCRITO ACIMA
         cursor.execute("TRUNCATE TABLE grafico;")                            #APAGA OS VALORES DO ULTIMO RELATORIO NO BD
         x1 = float(M_Aparent.get())
         x2 = float(M_Maxi.get())
@@ -23,6 +25,7 @@ def Salvar():                                                 #FUÇÃO PARA SALV
         sql_data = [x1, x2, x3, x4, x5, x6, x7]
         cursor.execute(sql,sql_data)
         conexao.commit()
+        cursor.close()
         tela2.destroy()
         run(r"Funcionalidades\P4_TelaDeEnsaioMarshall.exe", shell=True)
     except:
@@ -35,9 +38,6 @@ def Voltar():
 """=====================================================================================================================
                             CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 ====================================================================================================================="""
-conexao = pymysql.connect(host='localhost',user='root',passwd='',database='db_prensa_software')
-cursor = conexao.cursor()                                                   #CONEXÃO COM O BANCO DE DADOS DESCRITO ACIMA
-
 tela2 = Tk()
 tela2.iconbitmap(default=r"Funcionalidades\tela1.ico")
 tela2.title("Formulario Ensaio Marshall")

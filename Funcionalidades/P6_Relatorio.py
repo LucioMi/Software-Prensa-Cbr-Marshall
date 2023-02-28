@@ -61,38 +61,39 @@ for y in range(0, Cont):                                             #Salva os d
 
 cursor.execute(f"SELECT M_Aparente FROM grafico;")              #salvando valores do banco em uma variavel para exibição
 M_Esp_Aparente = str(cursor.fetchall())
-M_Esp_Aparente = M_Esp_Aparente.replace("(('", "")                                                   #Manipulando String
-M_Esp_Aparente = float(M_Esp_Aparente.replace("',),)", ""))
+M_Esp_Aparente = M_Esp_Aparente.replace("((", "")                                                   #Manipulando String
+M_Esp_Aparente = float(M_Esp_Aparente.replace(",),)", ""))
 
 cursor.execute(f"SELECT M_Max FROM grafico;")
 M_Esp_Max = str(cursor.fetchall())
-M_Esp_Max = M_Esp_Max.replace("(('", "")
-M_Esp_Max = float(M_Esp_Max.replace("',),)", ""))
+M_Esp_Max = M_Esp_Max.replace("((", "")
+M_Esp_Max = float(M_Esp_Max.replace(",),)", ""))
 
 cursor.execute(f"SELECT Vazio FROM grafico;")
 Vazios = str(cursor.fetchall())
-Vazios = Vazios.replace("(('", "")
-Vazios = float(Vazios.replace("',),)", ""))
+Vazios = Vazios.replace("((", "")
+Vazios = float(Vazios.replace(",),)", ""))
 
 cursor.execute(f"SELECT Agregado FROM grafico;")
 V_Agragado = str(cursor.fetchall())
-V_Agragado = V_Agragado.replace("(('", "")
-V_Agragado = float(V_Agragado.replace("',),)", ""))
+V_Agragado = V_Agragado.replace("((", "")
+V_Agragado = float(V_Agragado.replace(",),)", ""))
 
 cursor.execute(f"SELECT Betume FROM grafico;")
 Betume_v = str(cursor.fetchall())
-Betume_v = Betume_v.replace("(('", "")
-Betume_v = float(Betume_v.replace("',),)", ""))
+Betume_v = Betume_v.replace("((", "")
+Betume_v = float(Betume_v.replace(",),)", ""))
 
 cursor.execute(f"SELECT Estabilidade FROM grafico;")
 Estabilidad = str(cursor.fetchall())
-Estabilidad = Estabilidad.replace("(('", "")
-Estabilidad = float(Estabilidad.replace("',),)", ""))
+Estabilidad = Estabilidad.replace("((", "")
+Estabilidad = float(Estabilidad.replace(",),)", ""))
 
 cursor.execute(f"SELECT Teor_Asfalto FROM grafico;")
 Teor_Asfalt = str(cursor.fetchall())
-Teor_Asfalt = Teor_Asfalt.replace("(('", "")
-Teor_Asfalt = float(Teor_Asfalt.replace("',),)", ""))
+Teor_Asfalt = Teor_Asfalt.replace("((", "")
+Teor_Asfalt = float(Teor_Asfalt.replace(",),)", ""))
+cursor.close()                                                              #desconecta do db ja que não vai usa_lo mais
 
 plt.plot(deslocamento, forca, ls='-', lw=2, marker='o')
 plt.axis([0, 25.5, 0, 5100])
@@ -100,7 +101,7 @@ plt.grid(True)
 plt.ylabel('FORÇA (Kg/F)')
 plt.xlabel('DESLOCAMENTO (mm)')
 plt.title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm) ')
-plt.savefig(r"Funcionalidades\grafico1_relatorio.png", dpi=150)                                         #salva o grafico como uma imagem
+plt.savefig(r"Funcionalidades\grafico1_relatorio.png", dpi=150)                         #salva o grafico como uma imagem
 
 criar_pdf()                                                                          #Chama a função que vai criar o pdf
 """=====================================================================================================================            

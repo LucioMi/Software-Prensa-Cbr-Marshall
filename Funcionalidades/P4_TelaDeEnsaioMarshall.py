@@ -16,8 +16,6 @@ from subprocess import run                                            #bibliotec
                                           VARIAVEIS DO PROGRAMA
 ====================================================================================================================="""
 tela4 = Tk()
-conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
-cursor = conexao.cursor()
 SearchingPorts = True
 GetForcaFlag = False
 Grafico_Forca = float()
@@ -135,12 +133,15 @@ def Voltar():
 def Relatorio():
     global x1
     global y2
+    conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
+    cursor = conexao.cursor()
     cursor.execute("TRUNCATE TABLE teste;")
     for r in range(0, len(x1)):
         sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
         sql_data = [x1[r], y2[r]]
         cursor.execute(sql, sql_data)
         conexao.commit()
+    cursor.close()
     messagebox.showwarning("RELATORIO GERADO COM SUCESSO",                     # CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
                            "O relatorio foi criado e se encontra na pasta de destino")
     run(r"Funcionalidades\P6_Relatorio.exe", shell=True)
