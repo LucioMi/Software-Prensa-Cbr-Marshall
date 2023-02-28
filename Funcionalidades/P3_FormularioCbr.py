@@ -8,16 +8,16 @@ from subprocess import run
 ====================================================================================================================="""
 def Salvar():
     tela3.destroy()
-    run("P4_TelaDeEnsaioMarshall.exe", shell=True)                        #esta indo pra tela marshall a titulo de teste
+    run(r"Funcionalidades\P4_TelaDeEnsaioMarshall.exe", shell=True)       #esta indo pra tela marshall a titulo de teste
 
 def Voltar():
     tela3.destroy()
-    run("P1_TelaPrincipal.exe", shell=True)
+    run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
 """=====================================================================================================================
                             CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 ====================================================================================================================="""
 tela3 = Tk()                #cria uma 'variavel' tipo tk
-tela3.iconbitmap(default="tela1.ico")  #define o icone do aplicativo (formato ico 16x16 px)
+tela3.iconbitmap(default=r"Funcionalidades\tela1.ico")  #define o icone do aplicativo (formato ico 16x16 px)
 tela3.title("Formulario Ensaio CBR")    #cria o titulo da janela
 tela3.geometry('1366x705+-11+1')           #define o tamanho da janela
 

@@ -15,8 +15,8 @@ forca1 = []
 deslocamento = []
 deslocamento1 = []
 data_atual = datetime.now()
-data_str = data_atual.strftime('Relatorio_%d-%m-%Y_%H-%M')
-pastaApp = os.path.dirname(f'../Relatorios\{data_str}.pdf')                                      #caminho da pasta do pdf
+data_str = data_atual.strftime('Relatorio_%d-%m-%Y_%H-%M')                   #transforma a data atual no nome do arquivo
+pastaApp = os.path.dirname(f'Relatorios\{data_str}.pdf')                                        #caminho da pasta do pdf
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
@@ -26,9 +26,9 @@ def mm_ponto(mm):                                                          #conv
 def criar_pdf():
     cnv = canvas.Canvas(pastaApp + f'\{data_str}.pdf',
                         pagesize=A4)  # pasta,nome e tamanho do pdf (aqui muda qual pdf vai salvar)
-    cnv.drawImage("grafico1_relatorio.png", #coloca a imagem de fundo no ponto especolhido e escolhe o tamnaho da imagem
-                  mm_ponto(0), mm_ponto(140),width=mm_ponto(150),height=mm_ponto(100))
-    cnv.drawString(mm_ponto(10), mm_ponto(290),f'MASSA ESPECIFICA APARENTE:....{M_Esp_Aparente}')         #escreve no pdf
+    cnv.drawImage(r"Funcionalidades\grafico1_relatorio.png",#coloca a imagem no ponto especolhido e no tamanho escolhido
+                  mm_ponto(0), mm_ponto(140), width=mm_ponto(150), height=mm_ponto(100))
+    cnv.drawString(mm_ponto(10), mm_ponto(290), f'MASSA ESPECIFICA APARENTE:....{M_Esp_Aparente}')        #escreve no pdf
     cnv.drawString(mm_ponto(10), mm_ponto(283), f'MASSA ESPECIFICA MAXIMA:.........{M_Esp_Max}')
     cnv.drawString(mm_ponto(10), mm_ponto(276), f'VOLUME DE VAZIOS:...........{Vazios}')
     cnv.drawString(mm_ponto(10), mm_ponto(269), f'VAZIOS AGREGADO MINEIRAL:......{V_Agragado}')
@@ -49,7 +49,7 @@ cursor.execute(f"SELECT deslocamento_t FROM teste;")
 deslocamento1 = cursor.fetchall()
 Cont = len(forca1)                                                             #Pega o tamanho da tupla para usar no for
 
-for y in range(0,Cont):                                             #Salva os dados string do BD como float em uma lista
+for y in range(0, Cont):                                             #Salva os dados string do BD como float em uma lista
     var = str(forca1[y])                                              #Transforma em string para poder manipular a tupla
     var = var.replace("(", "")                        #Tira os dados desnecessarios da string para ela poder virar float
     var = float(var.replace(",)", ""))
@@ -94,13 +94,13 @@ Teor_Asfalt = str(cursor.fetchall())
 Teor_Asfalt = Teor_Asfalt.replace("(('", "")
 Teor_Asfalt = float(Teor_Asfalt.replace("',),)", ""))
 
-plt.plot(deslocamento,forca,ls='-',lw=2,marker='o')
-plt.axis([0, 25.5, 0,5100])
+plt.plot(deslocamento, forca, ls='-', lw=2, marker='o')
+plt.axis([0, 25.5, 0, 5100])
 plt.grid(True)
 plt.ylabel('FORÇA (Kg/F)')
 plt.xlabel('DESLOCAMENTO (mm)')
 plt.title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm) ')
-plt.savefig(f'grafico1_relatorio.png', dpi=150)                                         #salva o grafico como uma imagem
+plt.savefig(r"Funcionalidades\grafico1_relatorio.png", dpi=150)                                         #salva o grafico como uma imagem
 
 criar_pdf()                                                                          #Chama a função que vai criar o pdf
 """=====================================================================================================================            

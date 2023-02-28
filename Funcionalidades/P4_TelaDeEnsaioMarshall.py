@@ -122,13 +122,13 @@ def ParaMar():
     messagebox.showwarning("ENSAIO ENCERRADO",                                  #CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
                            "O ensaio foi encerrado manualmente")
     tela4.destroy()                                                                                  #Apaga a tela atual
-    run("P1_TelaPrincipal.exe", shell=True)
+    run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
 
 def Voltar():
     global cont
     if cont == 0:
         tela4.destroy()
-        run("P2_FormularioMarshall.exe", shell=True)
+        run(r"Funcionalidades\P2_FormularioMarshall.exe", shell=True)
     else:
         messagem.botton('O ensaio esta em andamento, aperte o botão "PARAR" encerrar o ensaio', "yellow")
 
@@ -143,9 +143,9 @@ def Relatorio():
         conexao.commit()
     messagebox.showwarning("RELATORIO GERADO COM SUCESSO",                     # CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
                            "O relatorio foi criado e se encontra na pasta de destino")
-    run("P6_Relatorio.exe", shell=True)                                                           #abre a tela principal
+    run(r"Funcionalidades\P6_Relatorio.exe", shell=True)
     tela4.destroy()                                                                                  #Apaga a tela atual
-    run("P1_TelaPrincipal.exe", shell=True)
+    run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
 
 def Buscar():
     global SearchingPorts
@@ -209,7 +209,7 @@ def pararAutomatico():
 """=====================================================================================================================
                      CRIAÇÃO DE WIDGETS, LAYOUT DA TELA, CONEXÃO COM O BD E COMUNICAÇÃO SERIAL
 ====================================================================================================================="""
-img_fundo = PhotoImage(file="Tela_Ensaio_Marshall.png")
+img_fundo = PhotoImage(file=r"Funcionalidades\Tela_Ensaio_Marshall.png")
 label_fundo = Label(tela4, image=img_fundo)
 label_fundo.place(x=0, y=0)
 
@@ -240,7 +240,7 @@ receiving_serial.daemon = True
 messagem = F_Auxiliares.Messege1(tela4)
 
 tela4.title("Ensaio Marshall")
-tela4.iconbitmap(default='tela1.ico')
+tela4.iconbitmap(default=r"Funcionalidades\tela1.ico")
 tela4.geometry('1366x705+-11+1')
 
 mainloop()

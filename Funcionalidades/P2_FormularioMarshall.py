@@ -24,14 +24,14 @@ def Salvar():                                                 #FUÇÃO PARA SALV
         cursor.execute(sql,sql_data)
         conexao.commit()
         tela2.destroy()
-        run("P4_TelaDeEnsaioMarshall.exe", shell=True)
+        run(r"Funcionalidades\P4_TelaDeEnsaioMarshall.exe", shell=True)
     except:
         messagebox.showwarning("ERRO!!!!!",                                     #CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
                                "Verifique se os dados foram preenchidos corretamente")
 
 def Voltar():
     tela2.destroy()
-    run("P1_TelaPrincipal.exe", shell=True)
+    run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
 """=====================================================================================================================
                             CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 ====================================================================================================================="""
@@ -39,7 +39,7 @@ conexao = pymysql.connect(host='localhost',user='root',passwd='',database='db_pr
 cursor = conexao.cursor()                                                   #CONEXÃO COM O BANCO DE DADOS DESCRITO ACIMA
 
 tela2 = Tk()
-tela2.iconbitmap(default="tela1.ico")
+tela2.iconbitmap(default=r"Funcionalidades\tela1.ico")
 tela2.title("Formulario Ensaio Marshall")
 tela2.geometry('1366x705+-11+1')
 
