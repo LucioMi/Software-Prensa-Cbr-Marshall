@@ -1,5 +1,4 @@
-# Prensa_Cbr_Marshall
-    Este é um projeto de software que gere automaticamente um ralatorio de um ensaio de compactação cbr
+    Este é um projeto de software que gere automaticamente um ralatorio de um ensaio de compactação cbr        
 ou marshall de acordo com as normas vigentes.
     Basicamente o porgrama recebe do usuario o tipo de ensaio desejado e em sequencia o programa recebe 
 os dados de entrada do usuario (identificação do usuario e detalhes da amostra) e salva temporariamente 
