@@ -11,7 +11,7 @@ from subprocess import run
 def Salvar():                                                 #FUÇÃO PARA SALVAR OS VALORES DIGITADOS PELO USUARIO NO BD
     try:
         conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
-        cursor = conexao.cursor()  # CONEXÃO COM O BANCO DE DADOS DESCRITO ACIMA
+        cursor = conexao.cursor()                                          # CONEXÃO COM O BANCO DE DADOS DESCRITO ACIMA
         cursor.execute("TRUNCATE TABLE grafico;")                            #APAGA OS VALORES DO ULTIMO RELATORIO NO BD
         x1 = float(M_Aparent.get())
         x2 = float(M_Maxi.get())
