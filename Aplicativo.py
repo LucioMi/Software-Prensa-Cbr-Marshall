@@ -24,7 +24,7 @@ except:
                    "deslocamento_t float not null,"
                    "forca_t float not null);")
     #TABELAS DO BD PARA O ENSAIO CBR, EM ANDAMENTO MAS JA VAO SER FEITAS DA MANEIRA CORRETA:
-    cursor.execute("create TABLE id_amostra_cbr (" 
+    cursor.execute("create TABLE id_ensaio_cbr (" 
         "registro int not null primary key auto_increment,"
         "dia varchar(255),"
         "obra varchar(255),"
@@ -33,6 +33,7 @@ except:
         "trecho varchar(255),"
         "subtrecho varchar(255),"
         "energia int,"
+        "furo varchar(255),"
         "amostra varchar(255));")
     cursor.execute("CREATE table id_cp_cbr ("
         "id_molde varchar(5) not null,"
