@@ -17,7 +17,8 @@ Funcionamento_Modo = 257
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
-def open():                                                   #Função que conecta à porta e o baud do dispositivo serial
+#VERIFICAÇÃO SE É POSSIVEL CONECTAR (SE A PORTA ESTA OPEN) E ATRIBUIÇÃO DO BAUD
+def open():
     global comport,Port
     if not comport.is_open:
         try:
@@ -41,20 +42,21 @@ def write_byte(byte):
 def read_line():
     return comport.readline()
 
-def reset_input_buffer():
+def reset_input_buffer():           #LIMPA A "BAGUNÇA"
     if comport.is_open:
         comport.reset_input_buffer()
 
+#LABELS DE EXIBIÇÃO DE DADOS DO ENSAIO
 class Messege1:
     def __init__(self, Master):                             #Cria as labels que indicam estado e funcionamento da prensa
-        self.label_port = Label(Master, text="COMx", font="Arial 16 bold", bg="black", fg="white")
-        self.label_port.place(width=105, height=29, x=71, y=219)
-        self.label_forca = Label(Master, text="0.0  Kg/F", font="Arial 22 bold", bg="black", fg="yellow")
-        self.label_forca.place(width=249, height=44, x=405, y=70)
-        self.label_deslocamento = Label(Master, text="0.0  mm", font="Arial 22 bold", bg="black", fg="yellow")
-        self.label_deslocamento.place(width=249, height=44, x=1080, y=66)
-        self.label_mensagem = Label(Master, text="---", font="Arial 22 bold", bg="black", fg="yellow")
-        self.label_mensagem.place(width=1100, height=57, x=245, y=629)
+        self.label_port = Label(Master, text="------", font="Arial 16 bold", bg="black", fg="red")
+        self.label_port.place(width=123, height=27, x=89, y=192)
+        self.label_forca = Label(Master, text="------"+" Kg/f", font="Arial 22 bold", bg="darkblue", fg="red")
+        self.label_forca.place(width=214, height=46, x=440, y=118)
+        self.label_deslocamento = Label(Master, text="------"+" mm", font="Arial 22 bold", bg="darkblue", fg="red")
+        self.label_deslocamento.place(width=214, height=46, x=1019, y=117)
+        self.label_mensagem = Label(Master, text="------", font="Arial 22 bold", bg="black", fg="red")
+        self.label_mensagem.place(width=1052, height=68, x=290, y=601)
 
     def port(self, color, port):
         global Port
@@ -65,10 +67,12 @@ class Messege1:
     def forca(self, forca):
         forca = forca
         self.label_forca["text"] = forca + " Kg/F"
+        self.label_forca["fg"] = "orange"
 
     def deslocamento(self, deslocamento):
         deslocamento = deslocamento
         self.label_deslocamento["text"] = deslocamento + " mm"
+        self.label_deslocamento["fg"] = "orange"
 
     def botton(self, mensagem,color):
         self.label_mensagem["text"] = mensagem

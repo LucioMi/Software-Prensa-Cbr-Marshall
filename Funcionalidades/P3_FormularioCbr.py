@@ -4,7 +4,6 @@
 from tkinter import *        #importa o modulo
 from subprocess import run
 from tkinter import messagebox
-import Posicionador_De_Objetos
 import pymysql
 """=====================================================================================================================
                                                   FUNÇÕES
@@ -39,7 +38,7 @@ def Salvar():
         tela3.destroy()
         run(r"Funcionalidades\P5_TelaDeEnsaioCbr.exe", shell=True)
     except:
-        messagebox.showwarning("ERRO!!!!!",                                    
+        messagebox.showwarning("ERRO!!!!!",
                                "Verifique se os dados foram preenchidos corretamente")
 
 def Voltar():
@@ -50,12 +49,10 @@ def Voltar():
 ====================================================================================================================="""
 #definindo janela tkinter e suas respectivas imagens
 tela3 = Tk()
-#tela3.iconbitmap(default=r"Funcionalidades\tela1.ico")         ESTA AQUI A TITULO DE TESTE MUDAR APÓS TERMINAR
-tela3.iconbitmap(default="tela1.ico")
+tela3.iconbitmap(default=r"Funcionalidades\tela1.ico")
 tela3.title("Formulario Ensaio CBR")
 tela3.geometry('1366x705+-11+1')
-#img_fundo = PhotoImage(file=r"Funcionalidades\tela_formulario_cbr.png") ESTA AQUI A TITULO DE TESTE MUDAR APÓS TERMINAR
-img_fundo = PhotoImage(file="tela_formulario_cbr.png")
+img_fundo = PhotoImage(file=r"Funcionalidades\tela_formulario_cbr.png")
 label_fundo = Label(tela3, image=img_fundo)
 label_fundo.place(x=0, y=0)
 
@@ -96,10 +93,6 @@ ener_35 = Radiobutton(tela3, text="35", value=35, variable=ener); ener_35.pack()
 ener_56 = Radiobutton(tela3, text="56", value=56, variable=ener); ener_56.pack()
 ener_12.place(width=54, height=52, x=746, y=174); ener_35.place(width=56, height=52, x=798, y=174);
 ener_56.place(width=56, height=52, x=850, y=174);
-
-tela3.bind('<Button-1>', lambda e: Posicionador_De_Objetos.m_btn1(e, tela3))
-tela3.bind('<Button-3>', lambda e: Posicionador_De_Objetos.m_btn3(e, tela3))
-tela3.bind('<ButtonRelease-1>', lambda e: Posicionador_De_Objetos.m_btn1_release(e, tela3))
 
 tela3.mainloop()
 """=====================================================================================================================            
