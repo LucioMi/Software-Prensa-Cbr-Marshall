@@ -23,7 +23,6 @@ except:
     cursor.execute("CREATE TABLE teste ("                                  #cria uma tabela para os valores dos sensores
                    "deslocamento_t float not null,"
                    "forca_t float not null);")
-
     #TABELAS DO BD PARA O ENSAIO CBR, EM ANDAMENTO MAS JA VAO SER FEITAS DA MANEIRA CORRETA:
     cursor.execute("create TABLE id_amostra_cbr (" 
         "registro int not null primary key auto_increment,"
@@ -45,6 +44,7 @@ except:
         "teor_umidade_media float not null,"
         "massa_esp_ap_seca float not null,"
         "altura_inicial float not null,"
+        "leitura_exp0 float not null,"             
         "leitura_exp1 float not null,"
         "leitura_exp2 float not null,"
         "leitura_exp3 float not null,"
