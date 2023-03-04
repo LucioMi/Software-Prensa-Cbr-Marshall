@@ -15,6 +15,7 @@ import Posicionador_De_Objetos
 buscar_ComPorts = False                                            #variavel que controla a busca por comunicação serial
 eixo_y_forca = []; eixo_x_deslocamento = []                       #listas que guardam os valores de força e deslocamento
 serial_deslocamento = ''                                                            #valor do deslocamento em tempo real
+deslo_max_ensaio = 12.7                                                           #valor maximo de deslocamento do ensio
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
@@ -54,9 +55,9 @@ def botao_conectar():
         messagem.botton("DESCONECTADO!", "red")
 
 def recebe_dados_serial():
-    global eixo_y_forca, eixo_x_deslocamentoa, serial_deslocamento
+    global eixo_y_forca, eixo_x_deslocamento, serial_deslocamento
     while True:
-        sleep(0.3)
+        #sleep(0.3)
         if F_Auxiliares.comport.is_open:
             F_Auxiliares.comport.reset_input_buffer()
             try:
@@ -74,15 +75,16 @@ def recebe_dados_serial():
                 serial_deslocamento = (float(serial_deslocamento.replace("n'", ""))) / 100
                 eixo_x_deslocamento.append(serial_deslocamento)
                 messagem.deslocamento(str(serial_deslocamento))
+                print(f'FORÇA = {serial_forca}\nDESLOCAMENTO = {serial_deslocamento}')
             except IOError:
                 messagem.forca("ERRO!")
                 messagem.deslocamento("ERRO!")
 
 def iniciar_ensaio():
     global serial_deslocamento, ax, animar
-    if serial_deslocamento < 0.1:
+    if float(serial_deslocamento) < 0.1:
         if F_Auxiliares.comport.is_open:
-            F_Auxiliares.comport.write((252, ))                      #envia o byte que é o comando de ligar em modo CBR)
+            F_Auxiliares.comport.write((252, ))                 #envia o byte que é o comando de ligar em modo CBR (252)
             figura = plt.Figure(figsize=(8, 4), dpi=60)
             ax = figura.add_subplot(111)
             canva = FigureCanvasTkAgg(figura, tela5)
@@ -98,19 +100,32 @@ def iniciar_ensaio():
 
 def plotar(i):
     global eixo_y_forca, eixo_x_deslocamento
-    max = None
+    desl_max_atual = None
     for num in eixo_x_deslocamento:
-        if (max is None or num > max):                                              #pega o valor maximo do deslocamento
-            max = num
+        if (desl_max_atual is None or num > desl_max_atual):                                   #pega o valor maximo da lista e manda pra "max"
+            desl_max_atual = num
+    if desl_max_atual < deslo_max_ensaio:
+        if len(eixo_y_forca) == len(eixo_x_deslocamento):
+            ax.clear()
+            ax.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o')
+            ax.axis([0, 25.5, 0, 5500])
+            ax.grid(True)
+            ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
+            ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
+            ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
+    else:
+        F_Auxiliares.comport.write((254,))
+        gerar_relatorio_cbr()
+"""PAREI AQUI TENTANDO DESCOBRIR SE O PLOT DEU CERTO OU NÃO"""
+def gerar_relatorio_cbr():
+    print('RELATORIO CRIADO MEU TRUTA')
+    messagem.forca(str("------"))
+    messagem.deslocamento(str("------"))
+    F_Auxiliares.comport.close()  # envia o byte que é o comando de parar a prensa
 
-    if len(eixo_y_forca) == len(eixo_x_deslocamento):
-        ax.clear()
-        ax.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o')
-        ax.axis([0, 25.5, 0, 5500])
-        ax.grid(True)
-        ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
-        ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
-        ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
+
+
+
 
 
 
@@ -118,7 +133,7 @@ def plotar(i):
 
 
 def parar_ensaio():
-    F_Auxiliares.comport.write((253,))                                   #envia o byte que é o comando de parar a prensa
+    pass
 
 
 
