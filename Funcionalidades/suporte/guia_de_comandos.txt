@@ -69,3 +69,9 @@ resultado = cursor.fetchall()           #o metodo .fetchall() retorna uma tupla
 print(resultado)
 
 #auto-py-to-exe (transforma python em executavel)
+CTRL + P = abrir lista de arquivos da pasta
+CTRL + D = seleciona variaveis ou comandos com o mesmo nome
+CTRL + F = caixa de pesquisa que procura e marca a sequencia de letras que você digitar na tela
+SHIFT + ALT + A = comenta as LINHAS selecionadas com aspas triplas
+CTRL + G = pula para uma linha especifica
+ALT + SETAS = moove o texto selecionado ora baixo e para cima

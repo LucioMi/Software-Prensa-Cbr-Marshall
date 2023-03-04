@@ -11,7 +11,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import animation
 from tkinter import messagebox
 from subprocess import run
-import Posicionador_De_Objetos
 """=============================================================================================================================================================
                                                                 VARIAVEIS
 ============================================================================================================================================================="""
@@ -19,6 +18,7 @@ buscar_ComPorts = False                                            #variavel que
 eixo_y_forca = []; eixo_x_deslocamento = []                        #listas que guardam os valores de força e deslocamento
 serial_deslocamento = ''                                           #valor do deslocamento em tempo real
 deslo_max_ensaio = 12.79                                           #valor maximo de deslocamento do ensaio cbr (controla o fim do ensaio)
+prensa_ligada = False                                              #variavel que diz se o ensaio esta em andamento ou não
 """=============================================================================================================================================================
                                                                 FUNÇÕES
 ============================================================================================================================================================="""
@@ -69,30 +69,25 @@ def recebe_dados_serial():
             F_Auxiliares.comport.reset_input_buffer()                                     #'limpa' a comunicação serial
             try:
                 serial_forca = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
-                serial_forca = serial_forca.replace("b'", "")
-                serial_forca = serial_forca.replace("r", "")
-                serial_forca = serial_forca.replace("\\", "")
-                serial_forca = (float(serial_forca.replace("n'", ""))) / 100
+                serial_forca = serial_forca.replace("b'", ""); serial_forca = serial_forca.replace("r", "")
+                serial_forca = serial_forca.replace("\\", ""); serial_forca = (float(serial_forca.replace("n'", ""))) / 100
                 eixo_y_forca.append(serial_forca)
                 messagem.forca(str(serial_forca))
                 serial_deslocamento = str(F_Auxiliares.comport.readline())
-                serial_deslocamento = serial_deslocamento.replace("b'", "")
-                serial_deslocamento = serial_deslocamento.replace("r", "")
-                serial_deslocamento = serial_deslocamento.replace("\\", "")
-                serial_deslocamento = (float(serial_deslocamento.replace("n'", ""))) / 100
+                serial_deslocamento = serial_deslocamento.replace("b'", ""); serial_deslocamento = serial_deslocamento.replace("r", "")
+                serial_deslocamento = serial_deslocamento.replace("\\", ""); serial_deslocamento = (float(serial_deslocamento.replace("n'", ""))) / 100
                 eixo_x_deslocamento.append(serial_deslocamento)
-                messagem.deslocamento(str(serial_deslocamento))
+                messagem.deslocamento(str(serial_deslocamento))   
             except IOError:
-                messagem.forca("ERRO!")
-                messagem.deslocamento("ERRO!")
+                messagem.forca("ERRO!"); messagem.deslocamento("ERRO!")
 
 #Inicia o ensaio se as condições para realizalo estiverem sendo atendidas, informa o usuario.
 def iniciar_ensaio():
     global serial_deslocamento, ax, animar
     if float(serial_deslocamento) < 0.1:
         if F_Auxiliares.comport.is_open:
-            F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, ))                           #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
             #Cria uma animação na tela que é o grafico de força x deslocamento
+            F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, ))         #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
             figura = plt.Figure(figsize=(8, 4), dpi=60)
             ax = figura.add_subplot(111)
             canva = FigureCanvasTkAgg(figura, tela5)
@@ -108,7 +103,9 @@ def iniciar_ensaio():
 
 #Grafico em tempo real até que o deslomento maximo seja atingido, quando atingido retorna a prensa para a posição inicial e chama a função de criar o relatorio
 def plotar(i):
-    global eixo_y_forca, eixo_x_deslocamento
+    global eixo_y_forca, eixo_x_deslocamento, prensa_ligada
+    if prensa_ligada == False:     
+        prensa_ligada = True       
     desl_max_atual = None
     for num in eixo_x_deslocamento:
         if (desl_max_atual is None or num > desl_max_atual):                                  
@@ -124,56 +121,61 @@ def plotar(i):
             ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
             ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
     else:
-        F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,))    #Escreve na porta serial o 253 que é o byte que retorna a prensa para a posição inicial (deslocamento == 0)
-        gerar_relatorio_cbr()                 #função de criaro relatorio
-"""
-RELATORIO AIND NÃO DESENVOLVIDO VOLTAR AQUI DEPOIS
-"""   
+        F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,))  #Escreve na serial o 253, o byte que retorna a prensa para a posição 0 (deslocamento == 0)
+        gerar_relatorio_cbr()                                       #função de criaro relatorio
+        prensa_ligada = False 
+
+""" RELATORIO AIND NÃO DESENVOLVIDO VOLTAR AQUI DEPOIS """
 def gerar_relatorio_cbr():   
     print('RELATORIO CRIADO MEU TRUTA')
     messagem.forca(str("------"))
     messagem.deslocamento(str("------"))
-    F_Auxiliares.comport.close() 
+    #F_Auxiliares.comport.close() 
 
 #Para a prensa imediatamente se o ensaio for interrompido, informa o usuario
 def parar_ensaio():
     if F_Auxiliares.comport.is_open:
-        F_Auxiliares.comport.write((F_Auxiliares.Desliga_Prensa,))  #Escreve na porta serial 0 byte que deslica a prensa (254)
+        F_Auxiliares.comport.write((F_Auxiliares.Desliga_Prensa,))                                   #Escreve na porta serial o byte que deslica a prensa (254)
         messagem.botton('PARADA MANUAL!!!. O ensaio foi interrempido durante sua execução', "red")
         messagebox.showwarning("PARADA MANUAL!!!", "Amostra comprometida os dados do formulario seram apagados e você sera redirecionado para a tela inicial")
+        F_Auxiliares.comport.close() 
         tela5.destroy()
         run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
     else:
         messagem.botton('Informação: Se deseja voltar para a tela anterior clique no botão "VOLTAR"', "red")
         messagebox.showwarning("ERRO!!!!!!!!!!","O ensaio ainda não foi iniciado")
 
-
-
-
-
-
+#Volta para a pagina inicial caso o ensaio não tenha ainda não tenha sido iniciado, informa o usuario
+def voltar_pagina():
+    if prensa_ligada == True:
+        messagem.botton('Ensaio em andamento, se deseja parar o ensaio pressione o botão "PARAR"', "red")
+    else:
+        F_Auxiliares.comport.close() 
+        tela5.destroy()       
+        run(r"Funcionalidades\P3_FormularioCbr.exe", shell=True)
+        
 """=============================================================================================================================================================
                                              CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 ============================================================================================================================================================="""
 #CRIA JANELA DO TKINTER
 tela5 = Tk()
-tela5.iconbitmap(default=r"Funcionalidades\tela1.ico")
-tela5.title("Ensaio CBR")
-tela5.geometry('1366x705+-11+1')
-img_fundo = PhotoImage(file=r"Funcionalidades\tela_ensaio_cbr.png")
-label_fundo = Label(tela5, image=img_fundo); label_fundo.place(x=0, y=0)
+tela5.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela5.title("Ensaio CBR"); tela5.geometry('1366x705+-11+1')
+img_fundo = PhotoImage(file=r"Funcionalidades\tela_ensaio_cbr.png"); label_fundo = Label(tela5, image=img_fundo); label_fundo.place(x=0, y=0)
 
 messagem = F_Auxiliares.Messege1(tela5)                           #CONECÇÃO COM AS LABELS DE EXIBIÇÃO DE DADOS DO ENSAIO
 
 #CRIA OS BOTOES DA TELA
-B_Buscar = Button(tela5, text="Buscar", bd=4, bg="orange", font=("Arial", 18), command=botao_buscar)
+B_Buscar = Button(tela5, text="Buscar", bd=4, bg="orange", font=("Arial", 18), command = botao_buscar)
 B_Buscar.place(width=122, height=34, x=91, y=344)
-B_Conectar = Button(tela5, text="Conectar", bd=4, bg="orange", font=("Arial", 18), command=botao_conectar)
+B_Conectar = Button(tela5, text="Conectar", bd=4, bg="orange", font=("Arial", 18), command = botao_conectar)
 B_Conectar.place(width=122, height=34, x=91, y=390)
-B_Iniciar = Button(tela5, text="INICIAR ENSAIO", bg="dark green", bd=4, font=("Arial", 18), command=iniciar_ensaio)
+B_Iniciar = Button(tela5, text="INICIAR ENSAIO", bg="dark green", bd=4, font=("Arial", 18), command = iniciar_ensaio)
 B_Iniciar.place(width=211, height=53, x=45, y=458)
-B_Parar = Button(tela5, text="PARAR ENSAIO", bg="dark red", bd=4, font=("Arial", 18), command=parar_ensaio)
+B_Parar = Button(tela5, text="PARAR ENSAIO", bg="dark red", bd=4, font=("Arial", 18), command = parar_ensaio)
 B_Parar.place(width=211, height=53, x=45, y=532)
+B_Voltar = Button(tela5, text="VOLTAR", bg="gold", bd=4, font=("Arial", 18), command = voltar_pagina)
+B_Voltar.place(width=211, height=53, x=45, y=606)
+
 #CRIA LISTA CLICAVEL PARA O USUARIO ESCOLHER A COM PORT
 lista_ComPorts = Listbox(tela5, height=1, width=7, bd=10, font="Arial 10", bg="black",
                     fg="green", highlightcolor="black", highlightthickness=0, highlightbackground="black")
@@ -182,18 +184,9 @@ lista_ComPorts.insert(END, "------")
 lista_ComPorts.bind('<Double-Button>', lambda e: messagem.port("orange", lista_ComPorts.get(ANCHOR)))
 
 #VARREDURA PARA BUSCAR PORTAS ENQUANTO A VARIAVEL FOR 'TRUE'
-Buscar_ports = threading.Thread(target=buscar_ComPorts)                             #Busca por dispositivos seriais
-Buscar_ports.daemon = True
-Buscar_ports.start()
+Buscar_ports = threading.Thread(target=buscar_ComPorts); Buscar_ports.daemon = True; Buscar_ports.start()
 #VARREDURA PARA VER SE A DADOS A RECEBER/CONECÇÃO COM A PORTA SERIAL
-recebendo_serial = threading.Thread(target=recebe_dados_serial)                    #REFERENCIA À receiving_serial
-recebendo_serial.daemon = True
-
-
-tela5.bind('<Button-1>', lambda e: Posicionador_De_Objetos.m_btn1(e, tela5))
-tela5.bind('<Button-3>', lambda e: Posicionador_De_Objetos.m_btn3(e, tela5))
-tela5.bind('<ButtonRelease-1>', lambda e: Posicionador_De_Objetos.m_btn1_release(e, tela5))
-
+recebendo_serial = threading.Thread(target=recebe_dados_serial); recebendo_serial.daemon = True
 
 tela5.mainloop()
 """============================================================================================================================================================ 
