@@ -9,10 +9,10 @@ from tkinter import *
 Port = "COMx"                                                     #Variavel que representa a porta da comunicação serial
 comport = serial.Serial()                                                                 #Cria um objeto do tipo serial
 #Terminadores para o reconhecimento dos comandos
-Liga_Marshall = 251                                                                    #Liga a prensa em estado marshall
-Liga_Cbr = 252                                                                              #Liga a prensa em estado Cbr
-Desliga_Prensa = 254
-Retorna_Prensa = 253                                       #Retorna a prensa para a posição 0 do sensor de deslocamento                                                                #Desliga a prensa imediatamente
+Liga_Marshall = 251                                                              #Liga a prensa em estado marshall
+Liga_Cbr = 252                                                                   #Liga a prensa em estado Cbr
+Desliga_Prensa = 254                                                             #Desliga a prensa
+Retorna_Prensa = 253                                                             #Retorna a prensa                                             
 Funcionamento_Modo = 257
 """=====================================================================================================================
                                                   FUNÇÕES
