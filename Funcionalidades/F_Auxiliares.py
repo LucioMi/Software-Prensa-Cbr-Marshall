@@ -11,8 +11,8 @@ comport = serial.Serial()                                                       
 #Terminadores para o reconhecimento dos comandos
 Liga_Marshall = 251                                                                    #Liga a prensa em estado marshall
 Liga_Cbr = 252                                                                              #Liga a prensa em estado Cbr
-Retorna_Prensa = 253                                       #Retorna a prensa para a posição 0 do sensor de deslocamento
-Desliga_Prensa = 254                                                                     #Desliga a prensa imediatamente
+Desliga_Prensa = 254
+Retorna_Prensa = 253                                       #Retorna a prensa para a posição 0 do sensor de deslocamento                                                                #Desliga a prensa imediatamente
 Funcionamento_Modo = 257
 """=====================================================================================================================
                                                   FUNÇÕES

@@ -170,13 +170,7 @@ def Conectar():
         messagem.botton("DESCONECTADO!", "red")
 
 def animar(i):
-    global x
-    global y
-    global cont
-    global x1
-    global y2
-    global max
-    global tam
+    global x, y, cont, x1, y2, max, tam
     if cont == 0:
         x.clear()
         y.clear()

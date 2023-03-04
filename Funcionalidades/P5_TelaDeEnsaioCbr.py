@@ -6,9 +6,15 @@ import serial.tools.list_ports
 from time import sleep
 import F_Auxiliares
 import threading
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib import animation
+from tkinter import messagebox
+import Posicionador_De_Objetos
 
-buscar_ComPorts = False
-eixo_x_forca = []; eixo_y_forca = []
+buscar_ComPorts = False                                            #variavel que controla a busca por comunicação serial
+eixo_y_forca = []; eixo_x_deslocamento = []                       #listas que guardam os valores de força e deslocamento
+serial_deslocamento = ''                                                            #valor do deslocamento em tempo real
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
@@ -48,46 +54,72 @@ def botao_conectar():
         messagem.botton("DESCONECTADO!", "red")
 
 def recebe_dados_serial():
-    global eixo_x_forca, eixo_y_forca
+    global eixo_y_forca, eixo_x_deslocamentoa, serial_deslocamento
     while True:
         sleep(0.3)
         if F_Auxiliares.comport.is_open:
             F_Auxiliares.comport.reset_input_buffer()
             try:
-                serial_temporaria1 = str(F_Auxiliares.comport.readline())
-                serial_temporaria1 = serial_temporaria1.replace("b'", "")
-                serial_temporaria1 = serial_temporaria1.replace("r", "")
-                serial_temporaria1 = serial_temporaria1.replace("\\", "")
-                serial_temporaria1 = (float(serial_temporaria1.replace("n'", ""))) / 100
-                eixo_x_forca.append(serial_temporaria1)
-                messagem.forca(str(serial_temporaria1))
-                serial_temporaria2 = str(F_Auxiliares.comport.readline())
-                serial_temporaria2 = serial_temporaria2.replace("b'", "")
-                serial_temporaria2 = serial_temporaria2.replace("r", "")
-                serial_temporaria2 = serial_temporaria2.replace("\\", "")
-                serial_temporaria2 = (float(serial_temporaria2.replace("n'", ""))) / 100
-                eixo_y_forca.append(serial_temporaria2)
-                messagem.deslocamento(str(serial_temporaria2))
+                serial_forca = str(F_Auxiliares.comport.readline())
+                serial_forca = serial_forca.replace("b'", "")
+                serial_forca = serial_forca.replace("r", "")
+                serial_forca = serial_forca.replace("\\", "")
+                serial_forca = (float(serial_forca.replace("n'", ""))) / 100
+                eixo_y_forca.append(serial_forca)
+                messagem.forca(str(serial_forca))
+                serial_deslocamento = str(F_Auxiliares.comport.readline())
+                serial_deslocamento = serial_deslocamento.replace("b'", "")
+                serial_deslocamento = serial_deslocamento.replace("r", "")
+                serial_deslocamento = serial_deslocamento.replace("\\", "")
+                serial_deslocamento = (float(serial_deslocamento.replace("n'", ""))) / 100
+                eixo_x_deslocamento.append(serial_deslocamento)
+                messagem.deslocamento(str(serial_deslocamento))
             except IOError:
                 messagem.forca("ERRO!")
                 messagem.deslocamento("ERRO!")
 
-"""
-                serial_data2 = F_Auxiliares.read_line()
-                serial_data2 = str(serial_data2)
-                serial_data2 = serial_data2.replace("b'", "")
-                serial_data2 = serial_data2.replace("r", "")
-                serial_data2 = serial_data2.replace("\\", "")
-                serial_data2 = serial_data2.replace("n'", "")
-                serial_data2 = serial_data2.replace(".00", "")
-                serial_data2 = float(serial_data2) / 100
-                Grafico_Deslocamento = float(serial_data2)
-                y.append(Grafico_Deslocamento)
-                messagem.deslocamento(str(serial_data2))
-            except IOError:
-                messagem.forca("ERRO!")
-                messagem.deslocamento("ERRO!")
-"""
+def iniciar_ensaio():
+    global serial_deslocamento, ax, animar
+    if serial_deslocamento < 0.1:
+        if F_Auxiliares.comport.is_open:
+            F_Auxiliares.comport.write((252, ))                      #envia o byte que é o comando de ligar em modo CBR)
+            figura = plt.Figure(figsize=(8, 4), dpi=60)
+            ax = figura.add_subplot(111)
+            canva = FigureCanvasTkAgg(figura, tela5)
+            canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
+            animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)
+        else:
+            messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
+            messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
+    else:
+        messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, "
+                                            "ajuste o sensor de deslocamento")
+        messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
+
+def plotar(i):
+    global eixo_y_forca, eixo_x_deslocamento
+    max = None
+    for num in eixo_x_deslocamento:
+        if (max is None or num > max):                                              #pega o valor maximo do deslocamento
+            max = num
+
+    if len(eixo_y_forca) == len(eixo_x_deslocamento):
+        ax.clear()
+        ax.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o')
+        ax.axis([0, 25.5, 0, 5500])
+        ax.grid(True)
+        ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
+        ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
+        ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
+
+
+
+
+
+
+def parar_ensaio():
+    F_Auxiliares.comport.write((253,))                                   #envia o byte que é o comando de parar a prensa
+
 
 
 
@@ -113,6 +145,10 @@ B_Buscar = Button(tela5, text="Buscar", bd=4, bg="orange", font=("Arial", 18), c
 B_Buscar.place(width=122, height=34, x=91, y=344)
 B_Conectar = Button(tela5, text="Conectar", bd=4, bg="orange", font=("Arial", 18), command=botao_conectar)
 B_Conectar.place(width=122, height=34, x=91, y=390)
+B_Iniciar = Button(tela5, text="INICIAR ENSAIO", bg="dark green", bd=4, font=("Arial", 18), command=iniciar_ensaio)
+B_Iniciar.place(width=211, height=53, x=45, y=458)
+B_Parar = Button(tela5, text="PARAR ENSAIO", bg="dark red", bd=4, font=("Arial", 18), command=parar_ensaio)
+B_Parar.place(width=211, height=53, x=45, y=532)
 #CRIA LISTA CLICAVEL PARA O USUARIO ESCOLHER A COM PORT
 lista_ComPorts = Listbox(tela5, height=1, width=7, bd=10, font="Arial 10", bg="black",
                     fg="green", highlightcolor="black", highlightthickness=0, highlightbackground="black")
@@ -127,6 +163,12 @@ Buscar_ports.start()
 #VARREDURA PARA VER SE A DADOS A RECEBER/CONECÇÃO COM A PORTA SERIAL
 recebendo_serial = threading.Thread(target=recebe_dados_serial)                    #REFERENCIA À receiving_serial
 recebendo_serial.daemon = True
+
+
+tela5.bind('<Button-1>', lambda e: Posicionador_De_Objetos.m_btn1(e, tela5))
+tela5.bind('<Button-3>', lambda e: Posicionador_De_Objetos.m_btn3(e, tela5))
+tela5.bind('<ButtonRelease-1>', lambda e: Posicionador_De_Objetos.m_btn1_release(e, tela5))
+
 
 tela5.mainloop()
 """=====================================================================================================================            
