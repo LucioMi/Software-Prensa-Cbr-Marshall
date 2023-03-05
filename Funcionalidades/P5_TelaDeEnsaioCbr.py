@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import animation
 from tkinter import messagebox
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
 from subprocess import run
 """=============================================================================================================================================================
                                                                 VARIAVEIS
@@ -82,14 +84,14 @@ def recebe_dados_serial():
                 messagem.forca("ERRO!"); messagem.deslocamento("ERRO!")
 
 #Inicia o ensaio se as condições para realizalo estiverem sendo atendidas, informa o usuario.
-def iniciar_ensaio():
+def iniciar_ensaio():       #voltar ate aqui
     global serial_deslocamento, ax, animar
     if float(serial_deslocamento) < 0.1:
         if F_Auxiliares.comport.is_open:
             #Cria uma animação na tela que é o grafico de força x deslocamento
             F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, ))         #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
-            figura = plt.Figure(figsize=(8, 4), dpi=60)
-            ax = figura.add_subplot(111)
+            figura = plt.Figure(figsize=(8, 4), dpi=60,facecolor='orange')
+            ax = figura.add_subplot(facecolor=(.0, .50, .0))
             canva = FigureCanvasTkAgg(figura, tela5)
             canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
             animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)                #gera a animação e chama a função que a "comandara"
@@ -114,16 +116,16 @@ def plotar(i):
         if len(eixo_y_forca) == len(eixo_x_deslocamento):
             #Gerando grafico em tempo real
             ax.clear()
-            ax.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o')
-            ax.axis([0, 25.5, 0, 5500])
+            ax.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o',color='black')
+            ax.axis('tight')
             ax.grid(True)
             ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
             ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
             ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
     else:
         F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,))  #Escreve na serial o 253, o byte que retorna a prensa para a posição 0 (deslocamento == 0)
-        gerar_relatorio_cbr()                                       #função de criaro relatorio
         prensa_ligada = False 
+        gerar_relatorio_cbr()                                       #função de criaro relatorio
 
 """ RELATORIO AIND NÃO DESENVOLVIDO VOLTAR AQUI DEPOIS """
 def gerar_relatorio_cbr():   
@@ -153,7 +155,6 @@ def voltar_pagina():
         F_Auxiliares.comport.close() 
         tela5.destroy()       
         run(r"Funcionalidades\P3_FormularioCbr.exe", shell=True)
-        
 """=============================================================================================================================================================
                                              CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 ============================================================================================================================================================="""
@@ -179,8 +180,7 @@ B_Voltar.place(width=211, height=53, x=45, y=606)
 #CRIA LISTA CLICAVEL PARA O USUARIO ESCOLHER A COM PORT
 lista_ComPorts = Listbox(tela5, height=1, width=7, bd=10, font="Arial 10", bg="black",
                     fg="green", highlightcolor="black", highlightthickness=0, highlightbackground="black")
-lista_ComPorts.place(width=122, height=99, x=90, y=233)
-lista_ComPorts.insert(END, "------")
+lista_ComPorts.place(width=122, height=99, x=90, y=233); lista_ComPorts.insert(END, "------")
 lista_ComPorts.bind('<Double-Button>', lambda e: messagem.port("orange", lista_ComPorts.get(ANCHOR)))
 
 #VARREDURA PARA BUSCAR PORTAS ENQUANTO A VARIAVEL FOR 'TRUE'
