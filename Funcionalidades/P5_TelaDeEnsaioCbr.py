@@ -13,6 +13,8 @@ from tkinter import messagebox
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from subprocess import run
+import os
+from datetime import datetime
 """=============================================================================================================================================================
                                                                 VARIAVEIS
 ============================================================================================================================================================="""
@@ -21,10 +23,13 @@ eixo_y_forca = []; eixo_x_deslocamento = []                        #listas que g
 serial_deslocamento = ''                                           #valor do deslocamento em tempo real
 deslo_max_ensaio = 12.79                                           #valor maximo de deslocamento do ensaio cbr (controla o fim do ensaio)
 prensa_ligada = False                                              #variavel que diz se o ensaio esta em andamento ou não
+data_atual = datetime.now()
+data_str = data_atual.strftime('Relatorio_%d-%m-%Y_%H-%M')                   #transforma a data atual no nome do arquivo
+pastaApp = os.path.dirname(f'Relatorios\{data_str}.pdf')                                        #caminho da pasta do pdf
 """=============================================================================================================================================================
                                                                 FUNÇÕES
 ============================================================================================================================================================="""
-#Função do botão de busca por portas COM
+#Função do botão de busca por portas COM    
 def botao_buscar():
     global buscar_ComPorts
     buscar_ComPorts = True
@@ -83,25 +88,30 @@ def recebe_dados_serial():
             except IOError:
                 messagem.forca("ERRO!"); messagem.deslocamento("ERRO!")
 
+
 #Inicia o ensaio se as condições para realizalo estiverem sendo atendidas, informa o usuario.
 def iniciar_ensaio():       #voltar ate aqui
     global serial_deslocamento, ax, animar
-    if float(serial_deslocamento) < 0.1:
-        if F_Auxiliares.comport.is_open:
-            #Cria uma animação na tela que é o grafico de força x deslocamento
-            F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, ))         #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
-            figura = plt.Figure(figsize=(8, 4), dpi=60,facecolor='orange')
-            ax = figura.add_subplot(facecolor=(.0, .50, .0))
-            canva = FigureCanvasTkAgg(figura, tela5)
-            canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
-            animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)                #gera a animação e chama a função que a "comandara"
+    if F_Auxiliares.comport.is_open:  
+        if float(serial_deslocamento) < 0.1 or b == True:         
+            if F_Auxiliares.comport.is_open:
+                #Cria uma animação na tela que é o grafico de força x deslocamento
+                F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, ))         #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
+                figura = plt.Figure(figsize=(8, 4), dpi=60,facecolor='orange')
+                ax = figura.add_subplot(facecolor=(.0, .50, .0))
+                canva = FigureCanvasTkAgg(figura, tela5)
+                canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
+                animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)                   #gera a animação e chama a função que a "comandara"
+                b = True                                                                            #Variavel de controle so pra não gerar um bug na programação
+            else:
+                messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
+                messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
         else:
-            messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
-            messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
+            messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, "
+                                "ajuste o sensor de deslocamento")
+            messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
     else:
-        messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, "
-                               "ajuste o sensor de deslocamento")
-        messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
+        pass
 
 #Grafico em tempo real até que o deslomento maximo seja atingido, quando atingido retorna a prensa para a posição inicial e chama a função de criar o relatorio
 def plotar(i):
@@ -127,13 +137,6 @@ def plotar(i):
         prensa_ligada = False 
         gerar_relatorio_cbr()                                       #função de criaro relatorio
 
-""" RELATORIO AIND NÃO DESENVOLVIDO VOLTAR AQUI DEPOIS """
-def gerar_relatorio_cbr():   
-    print('RELATORIO CRIADO MEU TRUTA')
-    messagem.forca(str("------"))
-    messagem.deslocamento(str("------"))
-    #F_Auxiliares.comport.close() 
-
 #Para a prensa imediatamente se o ensaio for interrompido, informa o usuario
 def parar_ensaio():
     if F_Auxiliares.comport.is_open:
@@ -155,6 +158,28 @@ def voltar_pagina():
         F_Auxiliares.comport.close() 
         tela5.destroy()       
         run(r"Funcionalidades\P3_FormularioCbr.exe", shell=True)
+
+""" Esta salvando um valor a mais conferir isto depois"""
+def gerar_relatorio_cbr():    
+    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento
+    F_Auxiliares.comport.close()
+    plt.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o')
+    plt.axis('tight')
+    plt.grid(True)
+    plt.ylabel('FORÇA (Kg/F)')
+    plt.xlabel('DESLOCAMENTO (mm)')
+    plt.title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm) ')
+    plt.savefig(r"Funcionalidades\grafico_relatorio_cbr.png", dpi=150)                         #salva o grafico como uma imagem
+
+    cnv = canvas.Canvas(pastaApp + f'\{data_str}.pdf',
+                        pagesize=A4)  # pasta,nome e tamanho do pdf (aqui muda qual pdf vai salvar)
+    cnv.drawImage(r"Funcionalidades\relatorio_cbr_individual.png",#coloca a imagem no ponto especolhido e no tamanho escolhido
+                  F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(210), height = F_Auxiliares.mm_ponto(297))
+    cnv.drawImage(r"Funcionalidades\grafico_relatorio_cbr.png",                #coloca a imagem no ponto especolhido e no tamanho escolhido
+                  F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(120))
+    cnv.drawString(F_Auxiliares.mm_ponto(23), F_Auxiliares.mm_ponto(270), f'ENERGIA')        #escreve no pdf
+    cnv.save()  
+  
 """=============================================================================================================================================================
                                              CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 ============================================================================================================================================================="""

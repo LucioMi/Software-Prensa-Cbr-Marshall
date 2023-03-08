@@ -17,6 +17,9 @@ Funcionamento_Modo = 257
 """=====================================================================================================================
                                                   FUNÇÕES
 ====================================================================================================================="""
+def mm_ponto(mm):                                                          #converte o tamanha de pontos para milimetros
+    return mm/0.352777
+
 #VERIFICAÇÃO SE É POSSIVEL CONECTAR (SE A PORTA ESTA OPEN) E ATRIBUIÇÃO DO BAUD
 def open():
     global comport,Port
