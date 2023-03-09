@@ -15,6 +15,7 @@ from reportlab.lib.pagesizes import A4
 from subprocess import run
 import os
 from datetime import datetime
+import pymysql
 """=============================================================================================================================================================
                                                                 VARIAVEIS
 ============================================================================================================================================================="""
@@ -162,24 +163,128 @@ def voltar_pagina():
 """ Esta salvando um valor a mais conferir isto depois"""
 def gerar_relatorio_cbr():    
     global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento
-    F_Auxiliares.comport.close()
+    F_Auxiliares.comport.close()                                                                                                 #Fecha a comunicação serial
+    #Connecta com o DB, pega os dados e manipula-os para usalos no relatorio                                                                       
+    conexao = pymysql.connect ( host='localhost',
+                            user='root', passwd='',database='db_prensa_software')
+    cursor = conexao.cursor()
+    cursor.execute(f"SELECT altura_inicial FROM id_cp_cbr;") 
+    altura_inicial = str(cursor.fetchall()); altura_inicial = altura_inicial.replace("((", ""); altura_inicial = altura_inicial.replace(",),)", "")
+    cursor.execute(f"SELECT exp_umidade_otima  FROM id_cp_cbr;") 
+    exp_umidade_otima = str(cursor.fetchall());exp_umidade_otima =exp_umidade_otima.replace("((", ""); exp_umidade_otima = exp_umidade_otima.replace(",),)", "")
+    cursor.execute(f"SELECT id_molde FROM id_cp_cbr;") 
+    id_molde = str(cursor.fetchall()); id_molde = id_molde.replace("(('", ""); id_molde = id_molde.replace("',),)", "")
+    cursor.execute(f"SELECT leitura_exp0 FROM id_cp_cbr;") 
+    leitura_exp0 = str(cursor.fetchall()); leitura_exp0 = leitura_exp0.replace("((", ""); leitura_exp0 = leitura_exp0.replace(",),)", "")
+    cursor.execute(f"SELECT leitura_exp1 FROM id_cp_cbr;") 
+    leitura_exp1 = str(cursor.fetchall()); leitura_exp1 = leitura_exp1.replace("((", ""); leitura_exp1 = leitura_exp1.replace(",),)", "")
+    cursor.execute(f"SELECT leitura_exp2 FROM id_cp_cbr;") 
+    leitura_exp2 = str(cursor.fetchall()); leitura_exp2 = leitura_exp2.replace("((", ""); leitura_exp2 = leitura_exp2.replace(",),)", "")
+    cursor.execute(f"SELECT leitura_exp3 FROM id_cp_cbr;") 
+    leitura_exp3 = str(cursor.fetchall()); leitura_exp3 = leitura_exp3.replace("((", ""); leitura_exp3 = leitura_exp3.replace(",),)", "")
+    cursor.execute(f"SELECT leitura_exp4 FROM id_cp_cbr;") 
+    leitura_exp4 = str(cursor.fetchall()); leitura_exp4 = leitura_exp4.replace("((", ""); leitura_exp4 = leitura_exp4.replace(",),)", "")
+    cursor.execute(f"SELECT massa_amosta FROM id_cp_cbr;") 
+    massa_amosta = str(cursor.fetchall()); massa_amosta = massa_amosta.replace("((", ""); massa_amosta = massa_amosta.replace(",),)", "")
+    cursor.execute(f"SELECT massa_amostra_cilindro FROM id_cp_cbr;") 
+    massa_amostra_cilindro = str(cursor.fetchall()); massa_amostra_cilindro = massa_amostra_cilindro.replace("((", ""); 
+    massa_amostra_cilindro = massa_amostra_cilindro.replace(",),)", "")
+    cursor.execute(f"SELECT massa_cilindro FROM id_cp_cbr;") 
+    massa_cilindro = str(cursor.fetchall()); massa_cilindro = massa_cilindro.replace("((", ""); massa_cilindro = massa_cilindro.replace(",),)", "")
+    cursor.execute(f"SELECT massa_esp_ap_seca FROM id_cp_cbr;") 
+    massa_esp_ap_seca=str(cursor.fetchall()); massa_esp_ap_seca = massa_esp_ap_seca.replace("((", ""); massa_esp_ap_seca = massa_esp_ap_seca.replace(",),)", "")
+    cursor.execute(f"SELECT peso_esp_umido FROM id_cp_cbr;") 
+    peso_esp_umido = str(cursor.fetchall()); peso_esp_umido = peso_esp_umido.replace("((", ""); peso_esp_umido = peso_esp_umido.replace(",),)", "")
+    cursor.execute(f"SELECT teor_umidade_media FROM id_cp_cbr;") 
+    teor_umidade_media=str(cursor.fetchall());teor_umidade_media=teor_umidade_media.replace("((", "");teor_umidade_media = teor_umidade_media.replace(",),)", "")
+    cursor.execute(f"SELECT volume FROM id_cp_cbr;") 
+    volume = str(cursor.fetchall()); volume = volume.replace("((", ""); volume = volume.replace(",),)", "")
+    cursor.execute(f"SELECT amostra FROM id_ensaio_cbr;") 
+    amostra = str(cursor.fetchall()); amostra = amostra.replace("(('", ""); amostra = amostra.replace("',),)", "")
+    cursor.execute(f"SELECT dia FROM id_ensaio_cbr;") 
+    dia = str(cursor.fetchall()); dia = dia.replace("(('", ""); dia = dia.replace("',),)", "")
+    cursor.execute(f"SELECT energia FROM id_ensaio_cbr;") 
+    energia = str(cursor.fetchall()); energia = energia.replace("((", ""); energia = energia.replace(",),)", "")
+    cursor.execute(f"SELECT furo FROM id_ensaio_cbr;")
+    furo = str(cursor.fetchall()); furo = furo.replace("(('", ""); furo = furo.replace("',),)", "")
+    cursor.execute(f"SELECT material FROM id_ensaio_cbr;")
+    material = str(cursor.fetchall()); material = material.replace("(('", ""); material = material.replace("',),)", "")
+    cursor.execute(f"SELECT obra FROM id_ensaio_cbr;")
+    obra= str(cursor.fetchall()); obra = obra.replace("(('", ""); obra = obra.replace("',),)", "")
+    cursor.execute(f"SELECT operador FROM id_ensaio_cbr;")
+    operador = str(cursor.fetchall()); operador = operador.replace("(('", ""); operador = operador.replace("',),)", "")
+    cursor.execute(f"SELECT subtrecho FROM id_ensaio_cbr;")
+    subtrecho = str(cursor.fetchall()); subtrecho = subtrecho.replace("(('", ""); subtrecho = subtrecho.replace("',),)", "")
+    cursor.execute(f"SELECT trecho FROM id_ensaio_cbr;")
+    trecho = str(cursor.fetchall()); trecho = trecho.replace("(('", ""); trecho = trecho.replace("',),)", "")
+    cursor.close()
+    #Cria o um grafico com os valores de força e deslocamento e salva em uma imagem
     plt.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o')
     plt.axis('tight')
     plt.grid(True)
     plt.ylabel('FORÇA (Kg/F)')
     plt.xlabel('DESLOCAMENTO (mm)')
     plt.title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm) ')
-    plt.savefig(r"Funcionalidades\grafico_relatorio_cbr.png", dpi=150)                         #salva o grafico como uma imagem
-
+    plt.savefig(r"Funcionalidades\grafico_relatorio_cbr.png", dpi=150)                       
+    #Escreve dados e imagens no pdf
     cnv = canvas.Canvas(pastaApp + f'\{data_str}.pdf',
-                        pagesize=A4)  # pasta,nome e tamanho do pdf (aqui muda qual pdf vai salvar)
-    cnv.drawImage(r"Funcionalidades\relatorio_cbr_individual.png",#coloca a imagem no ponto especolhido e no tamanho escolhido
+                        pagesize=A4)                                                                                                #pasta,nome e tamanho do pdf 
+    cnv.drawImage(r"Funcionalidades\relatorio_cbr_individual.png",                                   #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(210), height = F_Auxiliares.mm_ponto(297))
-    cnv.drawImage(r"Funcionalidades\grafico_relatorio_cbr.png",                #coloca a imagem no ponto especolhido e no tamanho escolhido
+    cnv.drawImage(r"Funcionalidades\grafico_relatorio_cbr.png",                                     #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(120))
-    cnv.drawString(F_Auxiliares.mm_ponto(23), F_Auxiliares.mm_ponto(270), f'ENERGIA')        #escreve no pdf
+    cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(278), f'REGISTRO')                                    #escreve no pdf no ponto escolhido
+    cnv.drawString(F_Auxiliares.mm_ponto(86), F_Auxiliares.mm_ponto(278), f'{dia}')        
+    cnv.drawString(F_Auxiliares.mm_ponto(154), F_Auxiliares.mm_ponto(278), f'{id_molde}') 
+    if int(energia) == 12: x = 'Normal' 
+    elif int(energia) == 26: x = 'Intermediária'
+    else: x= 'Modificada'      
+    cnv.drawString(F_Auxiliares.mm_ponto(23), F_Auxiliares.mm_ponto(270), f'{x}')       
+    cnv.drawString(F_Auxiliares.mm_ponto(90), F_Auxiliares.mm_ponto(270), f'{energia}')        
+    cnv.drawString(F_Auxiliares.mm_ponto(134), F_Auxiliares.mm_ponto(270), f'{amostra}')        
+    cnv.drawString(F_Auxiliares.mm_ponto(29), F_Auxiliares.mm_ponto(260), f'{material}')       
+    cnv.drawString(F_Auxiliares.mm_ponto(138), F_Auxiliares.mm_ponto(260), f'{furo}')       
+    cnv.drawString(F_Auxiliares.mm_ponto(28), F_Auxiliares.mm_ponto(251), f'{operador}')      
+    cnv.drawString(F_Auxiliares.mm_ponto(121), F_Auxiliares.mm_ponto(251), f'{obra}')        
+    cnv.drawString(F_Auxiliares.mm_ponto(23), F_Auxiliares.mm_ponto(243), f'{trecho}')       
+    cnv.drawString(F_Auxiliares.mm_ponto(135), F_Auxiliares.mm_ponto(243), f'{subtrecho}')        
+    cnv.drawString(F_Auxiliares.mm_ponto(83), F_Auxiliares.mm_ponto(230), f'{massa_amostra_cilindro}')        
+    cnv.drawString(F_Auxiliares.mm_ponto(83), F_Auxiliares.mm_ponto(224), f'{massa_cilindro}')      
+    cnv.drawString(F_Auxiliares.mm_ponto(83), F_Auxiliares.mm_ponto(217), f'{massa_esp_ap_seca}')        
+    cnv.drawString(F_Auxiliares.mm_ponto(83), F_Auxiliares.mm_ponto(210), f'{volume}')        
+    cnv.drawString(F_Auxiliares.mm_ponto(83), F_Auxiliares.mm_ponto(204), f'{peso_esp_umido}')       
+    cnv.drawString(F_Auxiliares.mm_ponto(83), F_Auxiliares.mm_ponto(197), f'{teor_umidade_media}')   
+    cnv.drawString(F_Auxiliares.mm_ponto(83), F_Auxiliares.mm_ponto(190), f'{massa_amosta}')     
+    cnv.drawString(F_Auxiliares.mm_ponto(41), F_Auxiliares.mm_ponto(163), f'{leitura_exp0}')     
+    cnv.drawString(F_Auxiliares.mm_ponto(41), F_Auxiliares.mm_ponto(156), f'{leitura_exp1}')    
+    cnv.drawString(F_Auxiliares.mm_ponto(41), F_Auxiliares.mm_ponto(149), f'{leitura_exp2}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(41), F_Auxiliares.mm_ponto(142), f'{leitura_exp3}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(41), F_Auxiliares.mm_ponto(136), f'{leitura_exp4}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(42), F_Auxiliares.mm_ponto(127), f'{altura_inicial}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(84), F_Auxiliares.mm_ponto(127), f'{exp_umidade_otima}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(156), f'{float(altura_inicial) - float(leitura_exp1)}')   
+    cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(149), f'{float(altura_inicial) - float(leitura_exp2)}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(142), f'{float(altura_inicial) - float(leitura_exp3)}')
+    cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(136), f'{float(altura_inicial) - float(leitura_exp4)}')
+    """Daqui pra baixo esta foda"""
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(218), f'{str(eixo_y_forca[1])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(211), f'{str(eixo_y_forca[2])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(204), f'{str(eixo_y_forca[3])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(198), f'{str(eixo_y_forca[4])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(191), f'{str(eixo_y_forca[5])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(184), f'{str(eixo_y_forca[6])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(177), f'{str(eixo_y_forca[7])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(171), f'{str(eixo_y_forca[8])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(164), f'{str(eixo_y_forca[9])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(157), f'{str(eixo_y_forca[10])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(150), f'{str(eixo_y_forca[11])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(144), f'{str(eixo_y_forca[12])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(137), f'{str(eixo_y_forca[13])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(198), f'{str(eixo_y_forca[4])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(178), f'{str(eixo_y_forca[7])}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'ISC_2,54')
+    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'ISC_5,08')
     cnv.save()  
-  
 """=============================================================================================================================================================
                                              CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 ============================================================================================================================================================="""
