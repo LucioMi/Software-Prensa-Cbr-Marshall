@@ -20,7 +20,7 @@ import pymysql
                                                                 VARIAVEIS
 ============================================================================================================================================================="""
 buscar_ComPorts = False                                            #variavel que controla a busca por comunicação serial
-eixo_y_forca = []; eixo_x_deslocamento = []                        #listas que guardam os valores de força e deslocamento
+eixo_y_forca = []; eixo_x_deslocamento = [] ; forca_relatorio = [] #########                       #listas que guardam os valores de força e deslocamento
 serial_deslocamento = ''                                           #valor do deslocamento em tempo real
 deslo_max_ensaio = 12.79                                           #valor maximo de deslocamento do ensaio cbr (controla o fim do ensaio)
 prensa_ligada = False                                              #variavel que diz se o ensaio esta em andamento ou não
@@ -162,7 +162,7 @@ def voltar_pagina():
 
 """ Esta salvando um valor a mais conferir isto depois"""
 def gerar_relatorio_cbr():    
-    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento
+    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_relatorio ########################
     F_Auxiliares.comport.close()                                                                                                 #Fecha a comunicação serial
     #Connecta com o DB, pega os dados e manipula-os para usalos no relatorio                                                                       
     conexao = pymysql.connect ( host='localhost',
@@ -266,22 +266,25 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(149), f'{float(altura_inicial) - float(leitura_exp2)}') 
     cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(142), f'{float(altura_inicial) - float(leitura_exp3)}')
     cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(136), f'{float(altura_inicial) - float(leitura_exp4)}')
-    """Daqui pra baixo esta foda"""
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(218), f'{str(eixo_y_forca[1])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(211), f'{str(eixo_y_forca[2])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(204), f'{str(eixo_y_forca[3])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(198), f'{str(eixo_y_forca[4])}')  
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(191), f'{str(eixo_y_forca[5])}')  
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(184), f'{str(eixo_y_forca[6])}')  
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(177), f'{str(eixo_y_forca[7])}')  
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(171), f'{str(eixo_y_forca[8])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(164), f'{str(eixo_y_forca[9])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(157), f'{str(eixo_y_forca[10])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(150), f'{str(eixo_y_forca[11])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(144), f'{str(eixo_y_forca[12])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(137), f'{str(eixo_y_forca[13])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(198), f'{str(eixo_y_forca[4])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(178), f'{str(eixo_y_forca[7])}') 
+    #Esse loop mostra apenas os valores de força maiores que 0 para exibir no relatorio
+    for cont in eixo_y_forca: 
+        if cont > 0:
+            forca_relatorio.append(cont)
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(218), f'{str(forca_relatorio[0])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(211), f'{str(forca_relatorio[1])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(204), f'{str(forca_relatorio[2])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(198), f'{str(forca_relatorio[3])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(191), f'{str(forca_relatorio[4])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(184), f'{str(forca_relatorio[5])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(177), f'{str(forca_relatorio[6])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(171), f'{str(forca_relatorio[7])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(164), f'{str(forca_relatorio[8])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(157), f'{str(forca_relatorio[9])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(150), f'{str(forca_relatorio[10])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(144), f'{str(forca_relatorio[11])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(137), f'{str(forca_relatorio[12])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(198), f'{str(forca_relatorio[4])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(178), f'{str(forca_relatorio[7])}') 
     cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'ISC_2,54')
     cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'ISC_5,08')
     cnv.save()  
