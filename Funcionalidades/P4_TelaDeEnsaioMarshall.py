@@ -12,6 +12,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import animation
 import pymysql
 from subprocess import run                                            #biblioteca para mudar de pagina usando diretorios
+
 """=====================================================================================================================
                                           VARIAVEIS DO PROGRAMA
 ====================================================================================================================="""
@@ -166,7 +167,7 @@ def Conectar():
             if not receiving_serial.is_alive():
                 receiving_serial.start()
     else:
-        F_Auxiliares.close()
+        F_Auxiliares.comport.close()
         messagem.botton("DESCONECTADO!", "red")
 
 def animar(i):

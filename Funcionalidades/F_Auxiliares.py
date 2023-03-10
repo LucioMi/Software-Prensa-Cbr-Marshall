@@ -27,25 +27,6 @@ def open():
             comport.close()
             comport.open()
 
-def close():
-    global comport
-    comport.close
-
-def is_open():                                                               #Função que estabelece a comunicação serial
-    global comport
-    return comport.is_open
-
-def write_byte(byte):
-    if comport.is_open:
-        comport.write((byte, ))
-
-def read_line():
-    return comport.readline()
-
-def reset_input_buffer():           #LIMPA A "BAGUNÇA"
-    if comport.is_open:
-        comport.reset_input_buffer()
-
 #LABELS DE EXIBIÇÃO DE DADOS DO ENSAIO
 class Messege1:
     def __init__(self, Master):                             #Cria as labels que indicam estado e funcionamento da prensa

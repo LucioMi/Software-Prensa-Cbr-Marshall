@@ -20,7 +20,7 @@ def Salvar():
         x9 = float(exp_1.get()); x10 = float(exp_2.get()); x11 = float(exp_3.get()); x12 = float(exp_4.get())
         x13 = float(m_cilindro.get()); x14 = float(m_amostra.get()); x15 = float(volume.get())
         x16 = float(expansao.get()); x17 = float(m_amostra_m_cilindro.get()); x18 = float(peso_exp_umido.get())
-        x19 = float(m_esp_seca.get()); x20 = float(altura.get()); x21 = float(amostra.get()); x22 = int(ener.get());
+        x19 = float(m_esp_seca.get()); x20 = float(altura.get()); x21 = str(amostra.get()); x22 = int(ener.get());
         x23 = float(teor_umidade_media.get()); x24 = str(furo.get())
         sql = 'INSERT INTO id_ensaio_cbr (amostra, dia, energia, material, obra, operador, subtrecho, trecho,furo) ' \
               'VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)'  # CHAMADA PARA SALVAR OS NOVOS VALORES DO RELATORIO NO BD
@@ -89,10 +89,10 @@ B_Voltar.place(width=137, height=50, x=1200, y=638)
 #Cria radiobuton para escolher "energia" que ja tem valores pre definidos pela norma
 ener = IntVar()
 ener_12 = Radiobutton(tela3, text="12", value=12, variable=ener); ener_12.pack()
-ener_35 = Radiobutton(tela3, text="35", value=35, variable=ener); ener_35.pack()
-ener_56 = Radiobutton(tela3, text="56", value=56, variable=ener); ener_56.pack()
-ener_12.place(width=54, height=52, x=746, y=174); ener_35.place(width=56, height=52, x=798, y=174);
-ener_56.place(width=56, height=52, x=850, y=174);
+ener_26 = Radiobutton(tela3, text="26", value=26, variable=ener); ener_26.pack()
+ener_55 = Radiobutton(tela3, text="55", value=55, variable=ener); ener_55.pack()
+ener_12.place(width=54, height=52, x=746, y=174); ener_26.place(width=56, height=52, x=798, y=174);
+ener_55.place(width=56, height=52, x=850, y=174);
 
 tela3.mainloop()
 """=====================================================================================================================            

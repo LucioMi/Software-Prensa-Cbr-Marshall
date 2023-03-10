@@ -25,7 +25,7 @@ serial_deslocamento = ''                                           #valor do des
 deslo_max_ensaio = 12.79                                           #valor maximo de deslocamento do ensaio cbr (controla o fim do ensaio)
 prensa_ligada = False                                              #variavel que diz se o ensaio esta em andamento ou não
 data_atual = datetime.now()
-data_str = data_atual.strftime('Relatorio_%d-%m-%Y_%H-%M')                   #transforma a data atual no nome do arquivo
+data_str = data_atual.strftime('Relatorio_Cbr_%d-%m-%Y_%H-%M')                   #transforma a data atual no nome do arquivo
 pastaApp = os.path.dirname(f'Relatorios\{data_str}.pdf')                                        #caminho da pasta do pdf
 """=============================================================================================================================================================
                                                                 FUNÇÕES
@@ -160,7 +160,7 @@ def voltar_pagina():
         tela5.destroy()       
         run(r"Funcionalidades\P3_FormularioCbr.exe", shell=True)
 
-""" Esta salvando um valor a mais conferir isto depois"""
+#Cria o pdf do relatorio e fecha o aplicativo
 def gerar_relatorio_cbr():    
     global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_relatorio ########################
     F_Auxiliares.comport.close()                                                                                                 #Fecha a comunicação serial
@@ -196,7 +196,7 @@ def gerar_relatorio_cbr():
     cursor.execute(f"SELECT peso_esp_umido FROM id_cp_cbr;") 
     peso_esp_umido = str(cursor.fetchall()); peso_esp_umido = peso_esp_umido.replace("((", ""); peso_esp_umido = peso_esp_umido.replace(",),)", "")
     cursor.execute(f"SELECT teor_umidade_media FROM id_cp_cbr;") 
-    teor_umidade_media=str(cursor.fetchall());teor_umidade_media=teor_umidade_media.replace("((", "");teor_umidade_media = teor_umidade_media.replace(",),)", "")
+    teor_umidade_media=str(cursor.fetchall());teor_umidade_media=teor_umidade_media.replace("((","");teor_umidade_media = teor_umidade_media.replace(",),)", "")
     cursor.execute(f"SELECT volume FROM id_cp_cbr;") 
     volume = str(cursor.fetchall()); volume = volume.replace("((", ""); volume = volume.replace(",),)", "")
     cursor.execute(f"SELECT amostra FROM id_ensaio_cbr;") 
@@ -285,9 +285,13 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(137), f'{str(forca_relatorio[12])}')
     cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(198), f'{str(forca_relatorio[4])}')
     cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(178), f'{str(forca_relatorio[7])}') 
-    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'ISC_2,54')
-    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'ISC_5,08')
-    cnv.save()  
+    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'{round((((float(forca_relatorio[4]))/70.31)*100),3)}')
+    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'{round((((float(forca_relatorio[7]))/105.46)*100),3)}')
+    cnv.save()
+    messagebox.showwarning("Fim do ensaio",
+                           "O relatorio foi criado com sucesso e se encontra na pasta de destino")
+    tela5.destroy()
+ 
 """=============================================================================================================================================================
                                              CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 ============================================================================================================================================================="""
