@@ -20,7 +20,7 @@ import pymysql
                                                                 VARIAVEIS
 ============================================================================================================================================================="""
 buscar_ComPorts = False                                            #variavel que controla a busca por comunicação serial
-eixo_y_forca = []; eixo_x_deslocamento = [] ; forca_relatorio = [] #########                       #listas que guardam os valores de força e deslocamento
+eixo_y_forca = []; eixo_x_deslocamento = [] ; forca_relatorio = [] #listas que guardam os valores de força e deslocamento
 serial_deslocamento = ''                                           #valor do deslocamento em tempo real
 deslo_max_ensaio = 12.79                                           #valor maximo de deslocamento do ensaio cbr (controla o fim do ensaio)
 prensa_ligada = False                                              #variavel que diz se o ensaio esta em andamento ou não
@@ -136,7 +136,7 @@ def plotar(i):
     else:
         F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,))  #Escreve na serial o 253, o byte que retorna a prensa para a posição 0 (deslocamento == 0)
         prensa_ligada = False 
-        gerar_relatorio_cbr()                                       #função de criaro relatorio
+        gerar_relatorio_cbr()                                                                                             #função de criaro relatorio
 
 #Para a prensa imediatamente se o ensaio for interrompido, informa o usuario
 def parar_ensaio():
@@ -162,9 +162,9 @@ def voltar_pagina():
 
 #Cria o pdf do relatorio e fecha o aplicativo
 def gerar_relatorio_cbr():    
-    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_relatorio ########################
-    F_Auxiliares.comport.close()                                                                                                 #Fecha a comunicação serial
-    #Connecta com o DB, pega os dados e manipula-os para usalos no relatorio                                                                       
+    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_relatorio 
+    F_Auxiliares.comport.close()                                                                                #Fecha a comunicação serial
+#Connecta com o DB, pega os dados e manipula-os para usalos no relatorio
     conexao = pymysql.connect ( host='localhost',
                             user='root', passwd='',database='db_prensa_software')
     cursor = conexao.cursor()

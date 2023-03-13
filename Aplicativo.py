@@ -11,19 +11,33 @@ except:
     cursor.execute("CREATE DATABASE db_prensa_software")
     conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
     cursor = conexao.cursor()                                               #CONEXÃO COM O BANCO DE DADOS DESCRITO ACIMA
-    #ESSAS TABELAS SÃO DO ENSAIO MARSHALL PRELIMINAR E DEVERAM SER APAGADAS:
-    cursor.execute("CREATE TABLE Grafico ("                                  #cria uma tabela para os valores de entrada
-                   "M_Aparente float not null,"
-                   "M_Max float not null,"
-                   "Vazio float not null,"
-                   "Agregado float not null,"
-                   "Betume float not null,"
-                   "Estabilidade float not null,"
-                   "Teor_Asfalto float not null);")
-    cursor.execute("CREATE TABLE teste ("                                  #cria uma tabela para os valores dos sensores
-                   "deslocamento_t float not null,"
-                   "forca_t float not null);")
-    #TABELAS DO BD PARA O ENSAIO CBR, EM ANDAMENTO MAS JA VAO SER FEITAS DA MANEIRA CORRETA:
+    #TABELAS DO BD PARA O ENSAIO MARSHALL
+    cursor.execute("CREATE TABLE ensaio_marshall ("                                  #cria uma tabela para os valores de entrada
+                   "registro varchar(255),"
+                   "dia varchar(255),"
+                   "id_cp varchar(255),"
+                   "material varchar(255),"
+                   "obra varchar(255),"
+                   "operador varchar(255),"
+                   "trecho varchar(255),"
+                   "subtrecho varchar(255),"
+                   "peso_ar float,"
+                   "peso_imerso float,"
+                   "volume float,"
+                   "densi_aparente float,"
+                   "densi_teorica float,"
+                   "temperatura float,"
+                   "vazios float,"
+                   "v_c_b float,"
+                   "v_a_m float,"
+                   "r_v_b float,"
+                   "amostra_antes float,"
+                   "amostra_depois float,"
+                   "peso_betume float,"
+                   "teor_betume float,"
+                   "comp_diame float,"
+                   "leit_deflet float);")
+    #TABELAS DO BD PARA O ENSAIO CBR:
     cursor.execute("create TABLE id_ensaio_cbr (" 
         "registro int not null primary key auto_increment,"
         "dia varchar(255),"

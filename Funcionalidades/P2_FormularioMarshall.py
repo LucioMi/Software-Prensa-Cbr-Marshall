@@ -1,90 +1,78 @@
-"""=====================================================================================================================
-                                          IMPORTAÇÃO DE MODULOS
-====================================================================================================================="""
-from tkinter import *
+"""==================================================================================================================================================
+                                                        IMPORTAÇÃO DE MODULOS
+=================================================================================================================================================="""
+from tkinter import *        
+from subprocess import run
 from tkinter import messagebox
 import pymysql
-from subprocess import run
-"""=====================================================================================================================
-                                                  FUNÇÕES
-====================================================================================================================="""
-def Salvar():                                                 #FUÇÃO PARA SALVAR OS VALORES DIGITADOS PELO USUARIO NO BD
-    try:
-        conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
-        cursor = conexao.cursor()                                          # CONEXÃO COM O BANCO DE DADOS DESCRITO ACIMA
-        cursor.execute("TRUNCATE TABLE grafico;")                            #APAGA OS VALORES DO ULTIMO RELATORIO NO BD
-        x1 = float(M_Aparent.get())
-        x2 = float(M_Maxi.get())
-        x3 = float(Vazios.get())
-        x4 = float(Agregad.get())
-        x5 = float(Betum.get())
-        x6 = float(Estabilidad.get())
-        x7 = float(Teor_Asfalt.get())
-        sql = 'INSERT INTO grafico(M_Aparente,M_Max,Vazio,Agregado,Betume,Estabilidade,Teor_Asfalto) ' \
-              'VALUES (%s,%s,%s,%s,%s,%s,%s)'                   #CHAMADA PARA SALVAR OS NOVOS VALORES DO RELATORIO NO BD
-        sql_data = [x1, x2, x3, x4, x5, x6, x7]
-        cursor.execute(sql,sql_data)
-        conexao.commit()
-        cursor.close()
-        tela2.destroy()
-        run(r"Funcionalidades\P4_TelaDeEnsaioMarshall.exe", shell=True)
-    except:
-        messagebox.showwarning("ERRO!!!!!",                                     #CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
-                               "Verifique se os dados foram preenchidos corretamente")
+"""==================================================================================================================================================
+                                                                FUNÇÕES
+=================================================================================================================================================="""
+def Salvar():                                                  
+    #try:
+    #conecção com o bd e reset do banco
+    conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
+    cursor = conexao.cursor()
+    cursor.execute("TRUNCATE TABLE ensaio_marshall;");
+    #variaveis temporarias para guardar os valores digitados pelo usuario
+    x1 = registro.get();
+    sql = 'INSERT INTO ensaio_marshall (registro)'
+    'VALUES (%s)'
+    sql_data = [x1]
+    cursor.execute(sql, sql_data)
+    conexao.commit()
+    cursor.close()   
+    tela2.destroy()
+    
 
 def Voltar():
     tela2.destroy()
     run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
-"""=====================================================================================================================
-                            CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
-====================================================================================================================="""
+"""==================================================================================================================================================
+                                                        CRIAÇÃO DE WIDGETS,LAYOUT DA TELA 
+=================================================================================================================================================="""
+#definindo janela tkinter e suas respectivas imagens
 tela2 = Tk()
 tela2.iconbitmap(default=r"Funcionalidades\tela1.ico")
 tela2.title("Formulario Ensaio Marshall")
 tela2.geometry('1366x705+-11+1')
+img_fundo = PhotoImage(file=r"Funcionalidades\tela_formulario_marshall.png")
+label_fundo = Label(tela2, image=img_fundo)
+label_fundo.place(x=0, y=0)
 
-label_Aparente = Label(tela2,font="Arial 12 bold",text="Massa especifica aparente (g/cm3): ")            #CRIA UM TEXTO
-label_Aparente.grid(row=0,column=0)                                                #DEFINE A POSIÇÃO DO LABEL POR 'GRID'
-M_Aparent = Entry(tela2, width=20)                                       #cria uma caixa de entrada como nome M_Aparent
-M_Aparent.grid(row=0,column=1)
+#definindo as caixas de entrada e suas repectivas posições
+registro = Entry(tela2, width=20); registro.place(width=102, height=26, x=135, y=123)
+dia = Entry(tela2, width=20); dia.place(width=100, height=29, x=347, y=119)
+id_cp = Entry(tela2, width=20); id_cp.place(width=110, height=29, x=698, y=122)
+material = Entry(tela2, width=20); material.place(width=298, height=20, x=967, y=123)
+obra = Entry(tela2, width=20); obra.place(width=287, height=27, x=102, y=178)
+operador = Entry(tela2, width=20); operador.place(width=284, height=28, x=531, y=179)
+trecho = Entry(tela2, width=20); trecho.place(width=287, height=29, x=989, y=178)
+subtrecho = Entry(tela2, width=20); subtrecho.place(width=292, height=27, x=138, y=229)
+peso_ar = Entry(tela2, width=20); peso_ar.place(width=102, height=28, x=169, y=287)
+peso_imerso = Entry(tela2, width=20); peso_imerso.place(width=102, height=22, x=166, y=363)
+volume = Entry(tela2, width=20); volume.place(width=103, height=26, x=169, y=425)
+densi_aparent = Entry(tela2, width=20); densi_aparent.place(width=101, height=28, x=171, y=504)
+densi_teorica = Entry(tela2, width=20); densi_teorica.place(width=105, height=28, x=166, y=573)
+temperatura = Entry(tela2, width=20); temperatura.place(width=101, height=27, x=172, y=627)
+vazios = Entry(tela2, width=20); vazios.place(width=110, height=24, x=560, y=291)
+v_c_b = Entry(tela2, width=20); v_c_b.place(width=99, height=27, x=563, y=354)
+v_a_m = Entry(tela2, width=20); v_a_m.place(width=98, height=23, x=565, y=427)
+r_v_b = Entry(tela2, width=20); r_v_b.place(width=103, height=24, x=562, y=493)
+amostra_antes = Entry(tela2, width=20); amostra_antes.place(width=97, height=25, x=567, y=557)
+amostra_depois = Entry(tela2, width=20); amostra_depois.place(width=101, height=22, x=970, y=289)
+peso_betume = Entry(tela2, width=20); peso_betume.place(width=97, height=24, x=965, y=356)
+teor_betume = Entry(tela2, width=20); teor_betume.place(width=98, height=25, x=964, y=424)
+comp_diame = Entry(tela2, width=20); comp_diame.place(width=105, height=23, x=960, y=497)
+leit_defle = Entry(tela2, width=20); leit_defle.place(width=95, height=29, x=968, y=555)
 
-label_Max = Label(tela2, text="Massa especifica máxima (g/cm3): ",font="Arial 12 bold")
-label_Max.grid(row=1,column=0)
-M_Maxi = Entry(tela2, width=20)
-M_Maxi.grid(row=1,column=1)
-
-label_vazios = Label(tela2, text="Volume de vazios (%): ",font="Arial 12 bold")
-label_vazios.grid(row=2,column=0)
-Vazios = Entry(tela2, width=20)
-Vazios.grid(row=2,column=1)
-
-label_Agregado = Label(tela2, text="Vazios de agregado mineral (%): ",font="Arial 12 bold")
-label_Agregado.grid(row=3,column=0)
-Agregad = Entry(tela2, width=20)
-Agregad.grid(row=3,column=1)
-
-label_Betume = Label(tela2, text="Relação betume/vazio (%): ",font="Arial 12 bold")
-label_Betume.grid(row=4,column=0)
-Betum = Entry(tela2, width=20)
-Betum.grid(row=4,column=1)
-
-label_Estabilidade = Label(tela2, text="Estabilidade (N) ",font="Arial 12 bold")
-label_Estabilidade.grid(row=5,column=0)
-Estabilidad = Entry(tela2, width=20)
-Estabilidad.grid(row=5,column=1)
-
-label_Asfalto = Label(tela2, text="Teor de asfalto (%) ",font="Arial 12 bold")
-label_Asfalto.grid(row=6,column=0)
-Teor_Asfalt = Entry(tela2, width=20)
-Teor_Asfalt.grid(row=6,column=1)
-
+#definindo botôes
 B_Salvar = Button(tela2,text="SALVAR",bg="green", command=Salvar, font=("Arial",20))
-B_Salvar.grid(row=8,column=0)
-
-B_Voltar = Button(tela2,text="VOLTAR",bg="red",command=Voltar, font=("Arial",20))
-B_Voltar.grid(row=8,column=2)
+B_Salvar.place(width=137, height=50, x=535, y=638)
+B_Voltar = Button(tela2,text="VOLTAR",bg="yellow",command=Voltar, font=("Arial",20))
+B_Voltar.place(width=137, height=50, x=735, y=638)
 
 tela2.mainloop()
-"""=====================================================================================================================            
+"""==================================================================================================================================================
                                                FIM DO PROGRAMA
-====================================================================================================================="""
+=================================================================================================================================================="""
