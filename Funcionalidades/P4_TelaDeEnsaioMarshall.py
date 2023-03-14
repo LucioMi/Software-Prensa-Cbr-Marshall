@@ -1,6 +1,6 @@
-"""=====================================================================================================================
-                                          IMPORTAÇÃO DE MODULOS
-====================================================================================================================="""
+"""==================================================================================================================================================
+                                                            IMPORTAÇÕES
+=================================================================================================================================================="""
 from tkinter import*
 from tkinter import messagebox
 import F_Auxiliares
@@ -11,44 +11,35 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import animation
 import pymysql
-from subprocess import run                                            #biblioteca para mudar de pagina usando diretorios
+from subprocess import run         
+from datetime import datetime
+import os
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4                               
+"""==================================================================================================================================================
+                                                     VARIAVEIS DO PROGRAMA
+=================================================================================================================================================="""
+buscar_ComPorts = False                                            #variavel que controla a busca por comunicação serial
+eixo_y_forca = []; eixo_x_deslocamento = []                        #listas que guardam os valores de força e deslocamento
+serial_forca = ''                                                  #valor de força em tempo real
+prensa_ligada = False                                              #variavel que diz se o ensaio esta em andamento
+data_atual = datetime.now()
+data_str = data_atual.strftime('Relatorio_Marshall_%d-%m-%Y_%H-%M')     #transforma a data atual no nome do arquivo
+pastaApp = os.path.dirname(f'Relatorios\{data_str}.pdf')           #caminho da pasta do pdf
+"""==================================================================================================================================================
+                                                             FUNÇÕES
+=================================================================================================================================================="""
+#Função do botão de busca por portas COM    
+def botao_buscar():
+    global buscar_ComPorts
+    buscar_ComPorts = True
 
-"""=====================================================================================================================
-                                          VARIAVEIS DO PROGRAMA
-====================================================================================================================="""
-tela4 = Tk()
-SearchingPorts = True
-GetForcaFlag = False
-Grafico_Forca = float()
-Grafico_Deslocamento = float()
-cont = 0
-x = []
-y = []
-x1 = []
-y2 = []
-max = 0                                                                                 #valor de pico inicial da prensa
-"""=====================================================================================================================
-                                                  FUNÇÕES
-====================================================================================================================="""
-def send_byte(byte):
-    if F_Auxiliares.is_open():
-        F_Auxiliares.write_byte(byte)
-    else:
-        messagem.botton("Por favor, abra a porta serial!", "yellow")
-
-def send_Funcionamento():
-    if F_Auxiliares.is_open():
-        DadosTx = int(F_Auxiliares.Funcionamento_Modo)
-        for idx in range(0, len(DadosTx)):
-            F_Auxiliares.write_byte(DadosTx[idx])
-        else:
-            messagem.botton("Por favor, abra a porta serial!", "yellow")
-
-def f_searching_ports():
-    global SearchingPorts
+#Exibe todas as portas COM disponiveis na lista tkinter (lista_ComPorts), informa o usuario.
+def buscar_ComPorts():
+    global buscar_ComPorts
     while True:
         sleep(0.3)
-        if SearchingPorts:
+        if buscar_ComPorts:
             messagem.botton('AGUARDE, procurando COM PORT...', "red")
             ports = serial.tools.list_ports.comports(include_links=False)
             port_list.delete('0', 'end')
@@ -57,189 +48,155 @@ def f_searching_ports():
                 port_list.insert(idx, port.device)
                 idx = idx + 1
                 port_list["height"] = idx
-                SearchingPorts = False
+                buscar_ComPorts = False
                 messagem.botton('BUSCA FINALIZADA, escolha a COM PORT...', "yellow")
 
-def f_receiving_serial():
-    global Grafico_Forca
-    global Grafico_Deslocamento
-    global x
-    global y
-    while True:
-        sleep(0.3)
-        if F_Auxiliares.is_open():
-            F_Auxiliares.reset_input_buffer()
-            try:
-                serial_data = F_Auxiliares.read_line()
-                serial_data = str(serial_data)
-                serial_data = serial_data.replace("b'", "")
-                serial_data = serial_data.replace("r", "")
-                serial_data = serial_data.replace("\\", "")
-                serial_data = serial_data.replace("n'", "")
-                serial_data = serial_data.replace(".00", "")
-                serial_data = float(serial_data) / 100
-                Grafico_Forca = float(serial_data)
-                x.append(Grafico_Forca)
-                messagem.forca(str(serial_data))
-                serial_data2 = F_Auxiliares.read_line()
-                serial_data2 = str(serial_data2)
-                serial_data2 = serial_data2.replace("b'", "")
-                serial_data2 = serial_data2.replace("r", "")
-                serial_data2 = serial_data2.replace("\\", "")
-                serial_data2 = serial_data2.replace("n'", "")
-                serial_data2 = serial_data2.replace(".00", "")
-                serial_data2 = float(serial_data2) / 100
-                Grafico_Deslocamento = float(serial_data2)
-                y.append(Grafico_Deslocamento)
-                messagem.deslocamento(str(serial_data2))
-            except IOError:
-                messagem.forca("ERRO!")
-                messagem.deslocamento("ERRO!")
-
-def LigaMar():
-    global ax
-    global anima
-    global Grafico_Deslocamento
-    if Grafico_Deslocamento <= 0.1:
-        if F_Auxiliares.is_open():
-            send_byte(251)                                #Liga a prensa em estado marshall(envia 251 pela porta serial)
-            figura = plt.Figure(figsize=(8, 4), dpi=60)
-            ax = figura.add_subplot(111)
-            canva = FigureCanvasTkAgg(figura, tela4)
-            canva.get_tk_widget().place(width=1068, height=482, x=250, y=130)
-            anima = animation.FuncAnimation(figura, animar, interval=1000, frames=10)
-        else:
-            messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
-            messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
-    else:
-        messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, "
-                                            "ajuste o sensor de deslocamento")
-        messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
-
-def ParaMar():
-    send_byte(254)                                         #Desliga a prensa imediatamente (envia 254 pela porta serial)
-    messagebox.showwarning("ENSAIO ENCERRADO",                                  #CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
-                           "O ensaio foi encerrado manualmente")
-    tela4.destroy()                                                                                  #Apaga a tela atual
-    run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
-
-def Voltar():
-    global cont
-    if cont == 0:
-        tela4.destroy()
-        run(r"Funcionalidades\P2_FormularioMarshall.exe", shell=True)
-    else:
-        messagem.botton('O ensaio esta em andamento, aperte o botão "PARAR" encerrar o ensaio', "yellow")
-
-def Relatorio():
-    global x1
-    global y2
-    conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
-    cursor = conexao.cursor()
-    cursor.execute("TRUNCATE TABLE teste;")
-    for r in range(0, len(x1)):
-        sql = f'INSERT INTO teste(forca_t,deslocamento_t) VALUES (%s,%s)'
-        sql_data = [x1[r], y2[r]]
-        cursor.execute(sql, sql_data)
-        conexao.commit()
-    cursor.close()
-    messagebox.showwarning("RELATORIO GERADO COM SUCESSO",                     # CRIA UMA CAIXA COM UMA MENSAGEM DE ERRO
-                           "O relatorio foi criado e se encontra na pasta de destino")
-    run(r"Funcionalidades\P6_Relatorio.exe", shell=True)
-    tela4.destroy()                                                                                  #Apaga a tela atual
-    run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
-
-def Buscar():
-    global SearchingPorts
-    SearchingPorts = True
-
-def Conectar():
-    global GetForcaFlag
+#Tenta realizar a conecção por comunicação serial e informa usuario o resultado.
+def botao_conectar():
     if F_Auxiliares.Port == 'COMx':
         messagem.botton('BUSCA FINALIZADA, escolha a COM PORT...', "yellow")
         return None
-    if not F_Auxiliares.is_open():
+    if not F_Auxiliares.comport.is_open:
         F_Auxiliares.open()
-        if F_Auxiliares.is_open():
-            messagem.botton("CONECTADO!", "green")
-            sleep(2.5)
-            GetForcaFlag = True
-            if not receiving_serial.is_alive():
-                receiving_serial.start()
+        if F_Auxiliares.comport.is_open:
+            messagem.botton("CONECTADO!, Ajuste o sensor de delocamento", "green")
+            if not recebendo_serial.is_alive():
+                recebendo_serial.start()
     else:
         F_Auxiliares.comport.close()
         messagem.botton("DESCONECTADO!", "red")
 
-def animar(i):
-    global x, y, cont, x1, y2, max, tam
-    if cont == 0:
-        x.clear()
-        y.clear()
-        x = [0]
-        y = [0]
-        cont = 1
-    if len(x) == len(y):
-        ax.clear()
-        ax.plot(y, x, ls='-', lw=2, marker='o')
-        ax.axis([0, 25.5, 0, 5500])
-        ax.grid(True)
-        ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
-        ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
-        ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
-        x1 = x
-        y2 = y
-    max = None
-    for num in x1:
-        if (max is None or num > max):                                   #pega o valor maximo da lista e manda pra "max"
-            max = num
-    tam = len(x1)                                                             #pega o tamanho do vetor e manda pra "tam"
-    pararAutomatico()
+#Recebe os dados de força e deslocamento do microcontrolador, trata esses dados, salva esses dados em variaveis e exibe para o usuario
+def recebe_dados_serial():
+    global eixo_y_forca, eixo_x_deslocamento, serial_forca
+    while True:
+        sleep(0.3)
+        if F_Auxiliares.comport.is_open:                                                  #verifica se ha comunicação serial
+            F_Auxiliares.comport.reset_input_buffer()                                     #'limpa' a comunicação serial
+            try:
+                serial_forca = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
+                serial_forca = serial_forca.replace("b'", ""); serial_forca = serial_forca.replace("r", "")
+                serial_forca = serial_forca.replace("\\", ""); serial_forca = (float(serial_forca.replace("n'", ""))) / 100
+                eixo_y_forca.append(serial_forca)
+                messagem.forca(str(serial_forca))
+                serial_deslocamento = str(F_Auxiliares.comport.readline())
+                serial_deslocamento = serial_deslocamento.replace("b'", ""); serial_deslocamento = serial_deslocamento.replace("r", "")
+                serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = (float(serial_deslocamento.replace("n'",""))) / 100
+                eixo_x_deslocamento.append(serial_deslocamento)
+                messagem.deslocamento(str(serial_deslocamento))   
+            except IOError:
+                messagem.forca("ERRO!"); messagem.deslocamento("ERRO!")
 
-def pararAutomatico():
-    global max
-    global tam
-    global x1
-    if max > (x1[tam-1]+1500):
-        send_byte(253)
-        Relatorio()
-"""=====================================================================================================================
-                     CRIAÇÃO DE WIDGETS, LAYOUT DA TELA, CONEXÃO COM O BD E COMUNICAÇÃO SERIAL
-====================================================================================================================="""
-img_fundo = PhotoImage(file=r"Funcionalidades\Tela_Ensaio_Marshall.png")
-label_fundo = Label(tela4, image=img_fundo)
-label_fundo.place(x=0, y=0)
+#Inicia o ensaio se as condições para realizalo estiverem sendo atendidas, informa o usuario.
+def iniciar_ensaio():       #voltar ate aqui
+    global serial_deslocamento, ax, animar
+    if F_Auxiliares.comport.is_open:  
+        if float(serial_deslocamento) < 0.1 or b == True:         
+            if F_Auxiliares.comport.is_open:
+                #Cria uma animação na tela que é o grafico de força x deslocamento
+                F_Auxiliares.comport.write((F_Auxiliares.Liga_Marshall, ))         #envia o byte que é o comando de ligar em modo CBR (251) na serial
+                figura = plt.Figure(figsize=(8, 4), dpi=60,facecolor='orange')
+                ax = figura.add_subplot(facecolor=(.0, .50, .0))
+                canva = FigureCanvasTkAgg(figura, tela4)
+                canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
+                animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)        #gera a animação e chama a função que a "comandara"
+                b = True                                                              #Variavel de controle so pra não gerar um bug na programação
+                messagem.botton('Ensaio em andamento!', "green")
+            else:
+                messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
+                messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
+        else:
+            messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, ajuste o sensor de deslocamento")
+            messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
 
-B_LigaMar = Button(tela4, text="INICIAR ENSAIO", bg="dark green", bd=4, font=("Arial", 18), command=LigaMar)    #botoes
-B_LigaMar.place(x=19, y=507)
-B_ParaMar = Button(tela4, text="PARAR ENSAIO", bg="red", font=("Arial", 18), bd=5, command=ParaMar)
-B_ParaMar.place(x=19, y=569)
-B_Voltar = Button(tela4, text="      VOLTAR      ", bd=4, bg="yellow", font=("Arial", 18), command=Voltar)
-B_Voltar.place(x=19, y=631)
-B_Buscar = Button(tela4, text="Buscar", bd=4, bg="blue", font=("Arial", 18), command=Buscar)
-B_Buscar.place(width=108, height=38, x=71, y=397)
-B_Conectar = Button(tela4, text="Conectar", bd=4, bg="blue", font=("Arial", 16), command=Conectar)
-B_Conectar.place(width=108, height=39, x=71, y=441)
+#Grafico em tempo real até que deslocamento maximo, quando atingido retorna a prensa para a posição inicial e chama a função de criar o relatorio
+def plotar(i):
+    global eixo_y_forca, eixo_x_deslocamento, prensa_ligada, serial_forca
+    if prensa_ligada == False:     
+        prensa_ligada = True       
+    forca_max_atual = None
+    for num in eixo_y_forca:
+        if (forca_max_atual is None or num > forca_max_atual):                                  
+            forca_max_atual = num
+    if forca_max_atual > (serial_forca + 500.00):
+        if len(eixo_y_forca) == len(eixo_x_deslocamento):
+            #Gerando grafico em tempo real
+            ax.clear()
+            ax.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o',color='black')
+            ax.axis('tight')
+            ax.grid(True)
+            ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
+            ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
+            ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
+    else:
+        F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,)) #byte que retorna a prensa para a posição 0 (deslocamento == 0)
+        prensa_ligada = False 
+        messagem.botton('Fim do ensaio!', "green")
+        gerar_relatorio_cbr()                                                             #função de criaro relatorio
 
-port_list = Listbox(tela4, height=1, width=7, bd=10, font="Arial 10", bg="black",             #Cria widget do tipo lista
-                    fg="#008000", highlightcolor="black", highlightthickness=0, highlightbackground="black")
-port_list.place(width=104, height=132, x=71, y=253)
-port_list.insert(END, "----")                                     #Define oque vai aparecer quando a lista estiver vazia
+#Para a prensa imediatamente se o ensaio for interrompido, informa o usuario
+def parar_ensaio():
+    if F_Auxiliares.comport.is_open:
+        F_Auxiliares.comport.write((F_Auxiliares.Desliga_Prensa,))          #Escreve na porta serial o byte que deslica a prensa (254)
+        messagem.botton('PARADA MANUAL!!!. O ensaio foi interrempido durante sua execução', "red")
+        messagebox.showwarning("PARADA MANUAL!!!", "Amostra comprometida os dados do formulario seram apagados e você sera redirecionado para a tela inicial")
+        F_Auxiliares.comport.close() 
+        tela4.destroy()
+        run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
+    else:
+        messagem.botton('Informação: Se deseja voltar para a tela anterior clique no botão "VOLTAR"', "red")
+        messagebox.showwarning("ERRO!!!!!!!!!!","O ensaio ainda não foi iniciado")
+
+#Volta para a pagina inicial caso o ensaio não tenha ainda não tenha sido iniciado, informa o usuario
+def voltar_pagina():
+    if prensa_ligada == True:
+        messagem.botton('Ensaio em andamento, se deseja parar o ensaio pressione o botão "PARAR"', "red")
+    else:
+        F_Auxiliares.comport.close() 
+        tela4.destroy()       
+        run(r"Funcionalidades\P2_FormularioMarshall.exe", shell=True)
+
+#Cria o pdf do relatorio e fecha o aplicativo
+def gerar_relatorio_marshall():
+    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_relatorio 
+    F_Auxiliares.comport.close()                                                                                #Fecha a comunicação serial
+    #Connecta com o DB, pega os dados e manipula-os para usalos no relatorio
+    conexao = pymysql.connect ( host='localhost', user='root', passwd='',database='db_prensa_software')
+    cursor = conexao.cursor()
+
+
+"""==================================================================================================================================================
+                                 CRIAÇÃO DE WIDGETS, LAYOUT DA TELA, BUSCA POR COMUNICAÇÃO SERIAL
+=================================================================================================================================================="""
+#Cria janela do tipo tk
+tela4 = Tk()
+tela4.title("Ensaio Marshall"); tela4.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela4.geometry('1366x705+-11+1')
+img_fundo = PhotoImage(file=r"Funcionalidades\Tela_Ensaio_Marshall.png"); label_fundo = Label(tela4, image=img_fundo); label_fundo.place(x=0, y=0)
+
+#cria os botões presentes na tela
+B_LigaMar = Button(tela4, text = "INICIAR ENSAIO", bg = "dark green", bd = 4, font = ("Arial", 18), command = iniciar_ensaio)
+B_LigaMar.place(width=211, height=53, x=45, y=458)
+B_ParaMar = Button(tela4, text="PARAR ENSAIO", bg="red", font=("Arial", 18), bd=5, command=parar_ensaio) 
+B_ParaMar.place(width=211, height=53, x=45, y=532)
+B_Voltar = Button(tela4, text="VOLTAR", bd=4, bg="yellow", font=("Arial", 18), command=voltar_pagina)
+B_Voltar.place(width=211, height=53, x=45, y=606)
+B_Buscar = Button(tela4, text="Buscar", bd=4, bg="blue", font=("Arial", 18), command=botao_buscar); B_Buscar.place(width=122, height=34, x=91, y=344)
+B_Conectar = Button(tela4, text="Conectar", bd=4, bg="blue", font=("Arial", 16), command = botao_conectar)
+B_Conectar.place(width=122, height=34, x=91, y=390)
+#cria uma lista para escolher em qual porta COM a prensa esta conectada
+port_list = Listbox(tela4, height=1, width=7, bd=10, font="Arial 10", bg="black", fg="#008000", highlightcolor="black", highlightthickness=0,
+highlightbackground="black"); port_list.place(width=122, height=99, x=90, y=233); port_list.insert(END, "----")                                     
 port_list.bind('<Double-Button>', lambda e: messagem.port("green", port_list.get(ANCHOR)))
 
-searching_ports = threading.Thread(target=f_searching_ports)                             #Busca por dispositivos seriais
-searching_ports.daemon = True
-searching_ports.start()
+#threding para buscar portas para comunicação serial
+Buscar_ports = threading.Thread(target=buscar_ComPorts); Buscar_ports.daemon = True; Buscar_ports.start()
+#threding para receber dados por comunicação serial
+recebendo_serial = threading.Thread(target=recebe_dados_serial); recebendo_serial.daemon = True
 
-receiving_serial = threading.Thread(target=f_receiving_serial)                    #Verifica se a dados seriais à receber
-receiving_serial.daemon = True
-
+#coneção com as labels de exibição da tela
 messagem = F_Auxiliares.Messege1(tela4)
 
-tela4.title("Ensaio Marshall")
-tela4.iconbitmap(default=r"Funcionalidades\tela1.ico")
-tela4.geometry('1366x705+-11+1')
-
-mainloop()
-"""=====================================================================================================================            
-                                               FIM DO PROGRAMA
-====================================================================================================================="""
+tela4.mainloop()
+"""==================================================================================================================================================
+                                                               FIM DO PROGRAMA
+=================================================================================================================================================="""

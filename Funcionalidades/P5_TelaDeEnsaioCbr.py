@@ -60,8 +60,7 @@ def botao_conectar():
     if not F_Auxiliares.comport.is_open:
         F_Auxiliares.open()
         if F_Auxiliares.comport.is_open:
-            messagem.botton("CONECTADO!", "green")
-            sleep(2.5)
+            messagem.botton("CONECTADO!, Ajuste o sensor de delocamento", "green")
             if not recebendo_serial.is_alive():
                 recebendo_serial.start()
     else:
@@ -83,7 +82,7 @@ def recebe_dados_serial():
                 messagem.forca(str(serial_forca))
                 serial_deslocamento = str(F_Auxiliares.comport.readline())
                 serial_deslocamento = serial_deslocamento.replace("b'", ""); serial_deslocamento = serial_deslocamento.replace("r", "")
-                serial_deslocamento = serial_deslocamento.replace("\\", ""); serial_deslocamento = (float(serial_deslocamento.replace("n'", ""))) / 100
+                serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = (float(serial_deslocamento.replace("n'",""))) / 100
                 eixo_x_deslocamento.append(serial_deslocamento)
                 messagem.deslocamento(str(serial_deslocamento))   
             except IOError:
@@ -104,15 +103,15 @@ def iniciar_ensaio():       #voltar ate aqui
                 canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
                 animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)        #gera a animação e chama a função que a "comandara"
                 b = True                                                              #Variavel de controle so pra não gerar um bug na programação
+                messagem.botton('Ensaio em andamento!', "green")
             else:
                 messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
                 messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
         else:
-            messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, "
-                                "ajuste o sensor de deslocamento")
+            messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, ajuste o sensor de deslocamento")
             messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
 
-#Grafico em tempo real até que o deslomento maximo seja atingido, quando atingido retorna a prensa para a posição inicial e chama a função de criar o relatorio
+#Grafico em tempo real até que deslocamento maximo, quando atingido retorna a prensa para a posição inicial e chama a função de criar o relatorio
 def plotar(i):
     global eixo_y_forca, eixo_x_deslocamento, prensa_ligada
     if prensa_ligada == False:     
@@ -134,6 +133,7 @@ def plotar(i):
     else:
         F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,)) #byte que retorna a prensa para a posição 0 (deslocamento == 0)
         prensa_ligada = False 
+        messagem.botton('Fim do ensaio!', "green")
         gerar_relatorio_cbr()                                                             #função de criaro relatorio
 
 #Para a prensa imediatamente se o ensaio for interrompido, informa o usuario
@@ -163,8 +163,7 @@ def gerar_relatorio_cbr():
     global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_relatorio 
     F_Auxiliares.comport.close()                                                                                #Fecha a comunicação serial
 #Connecta com o DB, pega os dados e manipula-os para usalos no relatorio
-    conexao = pymysql.connect ( host='localhost',
-                            user='root', passwd='',database='db_prensa_software')
+    conexao = pymysql.connect ( host='localhost', user='root', passwd='',database='db_prensa_software')
     cursor = conexao.cursor()
     cursor.execute(f"SELECT altura_inicial FROM ensaio_cbr;") 
     altura_inicial = str(cursor.fetchall()); altura_inicial = altura_inicial.replace("((", ""); altura_inicial = altura_inicial.replace(",),)", "")
@@ -191,7 +190,8 @@ def gerar_relatorio_cbr():
     cursor.execute(f"SELECT massa_cilindro FROM ensaio_cbr;") 
     massa_cilindro = str(cursor.fetchall()); massa_cilindro = massa_cilindro.replace("((", ""); massa_cilindro = massa_cilindro.replace(",),)", "")
     cursor.execute(f"SELECT massa_esp_ap_seca FROM ensaio_cbr;") 
-    massa_esp_ap_seca=str(cursor.fetchall()); massa_esp_ap_seca = massa_esp_ap_seca.replace("((", ""); massa_esp_ap_seca = massa_esp_ap_seca.replace(",),)", "")
+    massa_esp_ap_seca=str(cursor.fetchall()); massa_esp_ap_seca = massa_esp_ap_seca.replace("((", "") 
+    massa_esp_ap_seca = massa_esp_ap_seca.replace(",),)", "")
     cursor.execute(f"SELECT peso_esp_umido FROM ensaio_cbr;") 
     peso_esp_umido = str(cursor.fetchall()); peso_esp_umido = peso_esp_umido.replace("((", ""); peso_esp_umido = peso_esp_umido.replace(",),)", "")
     cursor.execute(f"SELECT teor_umidade_media FROM ensaio_cbr;") 
@@ -304,16 +304,12 @@ messagem = F_Auxiliares.Messege1(tela5)
 
 #CRIA OS BOTOES DA TELA
 B_Buscar = Button(tela5, text="Buscar", bd=4, bg="orange", font=("Arial", 18), command = botao_buscar)
-B_Buscar.place(width=122, height=34, x=91, y=344)
 B_Conectar = Button(tela5, text="Conectar", bd=4, bg="orange", font=("Arial", 18), command = botao_conectar)
-B_Conectar.place(width=122, height=34, x=91, y=390)
 B_Iniciar = Button(tela5, text="INICIAR ENSAIO", bg="dark green", bd=4, font=("Arial", 18), command = iniciar_ensaio)
-B_Iniciar.place(width=211, height=53, x=45, y=458)
 B_Parar = Button(tela5, text="PARAR ENSAIO", bg="dark red", bd=4, font=("Arial", 18), command = parar_ensaio)
-B_Parar.place(width=211, height=53, x=45, y=532)
 B_Voltar = Button(tela5, text="VOLTAR", bg="gold", bd=4, font=("Arial", 18), command = voltar_pagina)
-B_Voltar.place(width=211, height=53, x=45, y=606)
-
+B_Buscar.place(width=122, height=34, x=91, y=344); B_Conectar.place(width=122, height=34, x=91, y=390); 
+B_Iniciar.place(width=211, height=53, x=45, y=458); B_Parar.place(width=211, height=53, x=45, y=532); B_Voltar.place(width=211,height=53,x=45, y=606)
 #CRIA LISTA CLICAVEL PARA O USUARIO ESCOLHER A COM PORT
 lista_ComPorts = Listbox(tela5, height=1, width=7, bd=10, font="Arial 10", bg="black",
                     fg="green", highlightcolor="black", highlightthickness=0, highlightbackground="black")
@@ -326,6 +322,6 @@ Buscar_ports = threading.Thread(target=buscar_ComPorts); Buscar_ports.daemon = T
 recebendo_serial = threading.Thread(target=recebe_dados_serial); recebendo_serial.daemon = True
 
 tela5.mainloop()
-"""================================================================================================================================================= 
+"""==================================================================================================================================================
                                                                FIM DO PROGRAMA
 =================================================================================================================================================="""

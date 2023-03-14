@@ -31,7 +31,6 @@ def Salvar():
     except:
         messagebox.showwarning("ERRO!!!!!","Verifique se os dados foram preenchidos corretamente")
     
-
 def Voltar():
     tela2.destroy()
     run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
