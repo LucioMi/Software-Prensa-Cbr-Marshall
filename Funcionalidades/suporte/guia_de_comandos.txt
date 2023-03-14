@@ -75,3 +75,5 @@ CTRL + F = caixa de pesquisa que procura e marca a sequencia de letras que você
 SHIFT + ALT + A = comenta as LINHAS selecionadas com aspas triplas
 CTRL + G = pula para uma linha especifica
 ALT + SETAS = moove o texto selecionado ora baixo e para cima
+
+

@@ -1,6 +1,6 @@
-"""=============================================================================================================================================================
+"""==================================================================================================================================================
                                                            IMPORTAÇÃO DE MODULOS
-============================================================================================================================================================="""
+==============================================================================================================================================="""
 from tkinter import *
 import serial.tools.list_ports
 from time import sleep
@@ -16,9 +16,9 @@ from subprocess import run
 import os
 from datetime import datetime
 import pymysql
-"""=============================================================================================================================================================
+"""==================================================================================================================================================
                                                                 VARIAVEIS
-============================================================================================================================================================="""
+=================================================================================================================================================="""
 buscar_ComPorts = False                                            #variavel que controla a busca por comunicação serial
 eixo_y_forca = []; eixo_x_deslocamento = [] ; forca_relatorio = [] #listas que guardam os valores de força e deslocamento
 serial_deslocamento = ''                                           #valor do deslocamento em tempo real
@@ -27,9 +27,9 @@ prensa_ligada = False                                              #variavel que
 data_atual = datetime.now()
 data_str = data_atual.strftime('Relatorio_Cbr_%d-%m-%Y_%H-%M')                   #transforma a data atual no nome do arquivo
 pastaApp = os.path.dirname(f'Relatorios\{data_str}.pdf')                                        #caminho da pasta do pdf
-"""=============================================================================================================================================================
+"""==================================================================================================================================================
                                                                 FUNÇÕES
-============================================================================================================================================================="""
+=================================================================================================================================================="""
 #Função do botão de busca por portas COM    
 def botao_buscar():
     global buscar_ComPorts
@@ -97,13 +97,13 @@ def iniciar_ensaio():       #voltar ate aqui
         if float(serial_deslocamento) < 0.1 or b == True:         
             if F_Auxiliares.comport.is_open:
                 #Cria uma animação na tela que é o grafico de força x deslocamento
-                F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, ))         #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
+                F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, )) #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
                 figura = plt.Figure(figsize=(8, 4), dpi=60,facecolor='orange')
                 ax = figura.add_subplot(facecolor=(.0, .50, .0))
                 canva = FigureCanvasTkAgg(figura, tela5)
                 canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
-                animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)                   #gera a animação e chama a função que a "comandara"
-                b = True                                                                            #Variavel de controle so pra não gerar um bug na programação
+                animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)        #gera a animação e chama a função que a "comandara"
+                b = True                                                              #Variavel de controle so pra não gerar um bug na programação
             else:
                 messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
                 messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
@@ -111,8 +111,6 @@ def iniciar_ensaio():       #voltar ate aqui
             messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, "
                                 "ajuste o sensor de deslocamento")
             messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
-    else:
-        pass
 
 #Grafico em tempo real até que o deslomento maximo seja atingido, quando atingido retorna a prensa para a posição inicial e chama a função de criar o relatorio
 def plotar(i):
@@ -134,14 +132,14 @@ def plotar(i):
             ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
             ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
     else:
-        F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,))  #Escreve na serial o 253, o byte que retorna a prensa para a posição 0 (deslocamento == 0)
+        F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,)) #byte que retorna a prensa para a posição 0 (deslocamento == 0)
         prensa_ligada = False 
-        gerar_relatorio_cbr()                                                                                             #função de criaro relatorio
+        gerar_relatorio_cbr()                                                             #função de criaro relatorio
 
 #Para a prensa imediatamente se o ensaio for interrompido, informa o usuario
 def parar_ensaio():
     if F_Auxiliares.comport.is_open:
-        F_Auxiliares.comport.write((F_Auxiliares.Desliga_Prensa,))                                   #Escreve na porta serial o byte que deslica a prensa (254)
+        F_Auxiliares.comport.write((F_Auxiliares.Desliga_Prensa,))          #Escreve na porta serial o byte que deslica a prensa (254)
         messagem.botton('PARADA MANUAL!!!. O ensaio foi interrempido durante sua execução', "red")
         messagebox.showwarning("PARADA MANUAL!!!", "Amostra comprometida os dados do formulario seram apagados e você sera redirecionado para a tela inicial")
         F_Auxiliares.comport.close() 
@@ -168,55 +166,59 @@ def gerar_relatorio_cbr():
     conexao = pymysql.connect ( host='localhost',
                             user='root', passwd='',database='db_prensa_software')
     cursor = conexao.cursor()
-    cursor.execute(f"SELECT altura_inicial FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT altura_inicial FROM ensaio_cbr;") 
     altura_inicial = str(cursor.fetchall()); altura_inicial = altura_inicial.replace("((", ""); altura_inicial = altura_inicial.replace(",),)", "")
-    cursor.execute(f"SELECT exp_umidade_otima  FROM id_cp_cbr;") 
-    exp_umidade_otima = str(cursor.fetchall());exp_umidade_otima =exp_umidade_otima.replace("((", ""); exp_umidade_otima = exp_umidade_otima.replace(",),)", "")
-    cursor.execute(f"SELECT id_molde FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT exp_umidade_otima  FROM ensaio_cbr;") 
+    exp_umidade_otima = str(cursor.fetchall());exp_umidade_otima =exp_umidade_otima.replace("((", "") 
+    exp_umidade_otima = exp_umidade_otima.replace(",),)", "")
+    cursor.execute(f"SELECT id_molde FROM ensaio_cbr;") 
     id_molde = str(cursor.fetchall()); id_molde = id_molde.replace("(('", ""); id_molde = id_molde.replace("',),)", "")
-    cursor.execute(f"SELECT leitura_exp0 FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT leitura_exp0 FROM ensaio_cbr;") 
     leitura_exp0 = str(cursor.fetchall()); leitura_exp0 = leitura_exp0.replace("((", ""); leitura_exp0 = leitura_exp0.replace(",),)", "")
-    cursor.execute(f"SELECT leitura_exp1 FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT leitura_exp1 FROM ensaio_cbr;") 
     leitura_exp1 = str(cursor.fetchall()); leitura_exp1 = leitura_exp1.replace("((", ""); leitura_exp1 = leitura_exp1.replace(",),)", "")
-    cursor.execute(f"SELECT leitura_exp2 FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT leitura_exp2 FROM ensaio_cbr;") 
     leitura_exp2 = str(cursor.fetchall()); leitura_exp2 = leitura_exp2.replace("((", ""); leitura_exp2 = leitura_exp2.replace(",),)", "")
-    cursor.execute(f"SELECT leitura_exp3 FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT leitura_exp3 FROM ensaio_cbr;") 
     leitura_exp3 = str(cursor.fetchall()); leitura_exp3 = leitura_exp3.replace("((", ""); leitura_exp3 = leitura_exp3.replace(",),)", "")
-    cursor.execute(f"SELECT leitura_exp4 FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT leitura_exp4 FROM ensaio_cbr;") 
     leitura_exp4 = str(cursor.fetchall()); leitura_exp4 = leitura_exp4.replace("((", ""); leitura_exp4 = leitura_exp4.replace(",),)", "")
-    cursor.execute(f"SELECT massa_amosta FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT massa_amosta FROM ensaio_cbr;") 
     massa_amosta = str(cursor.fetchall()); massa_amosta = massa_amosta.replace("((", ""); massa_amosta = massa_amosta.replace(",),)", "")
-    cursor.execute(f"SELECT massa_amostra_cilindro FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT massa_amostra_cilindro FROM ensaio_cbr;") 
     massa_amostra_cilindro = str(cursor.fetchall()); massa_amostra_cilindro = massa_amostra_cilindro.replace("((", ""); 
     massa_amostra_cilindro = massa_amostra_cilindro.replace(",),)", "")
-    cursor.execute(f"SELECT massa_cilindro FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT massa_cilindro FROM ensaio_cbr;") 
     massa_cilindro = str(cursor.fetchall()); massa_cilindro = massa_cilindro.replace("((", ""); massa_cilindro = massa_cilindro.replace(",),)", "")
-    cursor.execute(f"SELECT massa_esp_ap_seca FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT massa_esp_ap_seca FROM ensaio_cbr;") 
     massa_esp_ap_seca=str(cursor.fetchall()); massa_esp_ap_seca = massa_esp_ap_seca.replace("((", ""); massa_esp_ap_seca = massa_esp_ap_seca.replace(",),)", "")
-    cursor.execute(f"SELECT peso_esp_umido FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT peso_esp_umido FROM ensaio_cbr;") 
     peso_esp_umido = str(cursor.fetchall()); peso_esp_umido = peso_esp_umido.replace("((", ""); peso_esp_umido = peso_esp_umido.replace(",),)", "")
-    cursor.execute(f"SELECT teor_umidade_media FROM id_cp_cbr;") 
-    teor_umidade_media=str(cursor.fetchall());teor_umidade_media=teor_umidade_media.replace("((","");teor_umidade_media = teor_umidade_media.replace(",),)", "")
-    cursor.execute(f"SELECT volume FROM id_cp_cbr;") 
+    cursor.execute(f"SELECT teor_umidade_media FROM ensaio_cbr;") 
+    teor_umidade_media = str(cursor.fetchall()); teor_umidade_media = teor_umidade_media.replace("((","") 
+    teor_umidade_media = teor_umidade_media.replace(",),)", "")
+    cursor.execute(f"SELECT volume FROM ensaio_cbr;") 
     volume = str(cursor.fetchall()); volume = volume.replace("((", ""); volume = volume.replace(",),)", "")
-    cursor.execute(f"SELECT amostra FROM id_ensaio_cbr;") 
+    cursor.execute(f"SELECT amostra FROM ensaio_cbr;") 
     amostra = str(cursor.fetchall()); amostra = amostra.replace("(('", ""); amostra = amostra.replace("',),)", "")
-    cursor.execute(f"SELECT dia FROM id_ensaio_cbr;") 
+    cursor.execute(f"SELECT dia FROM ensaio_cbr;") 
     dia = str(cursor.fetchall()); dia = dia.replace("(('", ""); dia = dia.replace("',),)", "")
-    cursor.execute(f"SELECT energia FROM id_ensaio_cbr;") 
+    cursor.execute(f"SELECT energia FROM ensaio_cbr;") 
     energia = str(cursor.fetchall()); energia = energia.replace("((", ""); energia = energia.replace(",),)", "")
-    cursor.execute(f"SELECT furo FROM id_ensaio_cbr;")
+    cursor.execute(f"SELECT furo FROM ensaio_cbr;")
     furo = str(cursor.fetchall()); furo = furo.replace("(('", ""); furo = furo.replace("',),)", "")
-    cursor.execute(f"SELECT material FROM id_ensaio_cbr;")
+    cursor.execute(f"SELECT material FROM ensaio_cbr;")
     material = str(cursor.fetchall()); material = material.replace("(('", ""); material = material.replace("',),)", "")
-    cursor.execute(f"SELECT obra FROM id_ensaio_cbr;")
+    cursor.execute(f"SELECT obra FROM ensaio_cbr;")
     obra= str(cursor.fetchall()); obra = obra.replace("(('", ""); obra = obra.replace("',),)", "")
-    cursor.execute(f"SELECT operador FROM id_ensaio_cbr;")
+    cursor.execute(f"SELECT operador FROM ensaio_cbr;")
     operador = str(cursor.fetchall()); operador = operador.replace("(('", ""); operador = operador.replace("',),)", "")
-    cursor.execute(f"SELECT subtrecho FROM id_ensaio_cbr;")
+    cursor.execute(f"SELECT subtrecho FROM ensaio_cbr;")
     subtrecho = str(cursor.fetchall()); subtrecho = subtrecho.replace("(('", ""); subtrecho = subtrecho.replace("',),)", "")
-    cursor.execute(f"SELECT trecho FROM id_ensaio_cbr;")
+    cursor.execute(f"SELECT trecho FROM ensaio_cbr;")
     trecho = str(cursor.fetchall()); trecho = trecho.replace("(('", ""); trecho = trecho.replace("',),)", "")
+    cursor.execute(f"SELECT trecho FROM ensaio_cbr;")
+    registro = str(cursor.fetchall()); registro = registro.replace("(('", ""); registro = registro.replace("',),)", "")
     cursor.close()
     #Cria o um grafico com os valores de força e deslocamento e salva em uma imagem
     plt.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o')
@@ -228,12 +230,12 @@ def gerar_relatorio_cbr():
     plt.savefig(r"Funcionalidades\grafico_relatorio_cbr.png", dpi=150)                       
     #Escreve dados e imagens no pdf
     cnv = canvas.Canvas(pastaApp + f'\{data_str}.pdf',
-                        pagesize=A4)                                                                                                #pasta,nome e tamanho do pdf 
-    cnv.drawImage(r"Funcionalidades\relatorio_cbr_individual.png",                                   #coloca a imagem no ponto especolhido e no tamanho escolhido
+                        pagesize=A4)                                                                               #pasta,nome e tamanho do pdf 
+    cnv.drawImage(r"Funcionalidades\relatorio_cbr_individual.png",                     #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(210), height = F_Auxiliares.mm_ponto(297))
-    cnv.drawImage(r"Funcionalidades\grafico_relatorio_cbr.png",                                     #coloca a imagem no ponto especolhido e no tamanho escolhido
+    cnv.drawImage(r"Funcionalidades\grafico_relatorio_cbr.png",                         #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(120))
-    cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(278), f'REGISTRO')                                    #escreve no pdf no ponto escolhido
+    cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(278), f'{registro}')                         #escreve no pdf no ponto escolhido
     cnv.drawString(F_Auxiliares.mm_ponto(86), F_Auxiliares.mm_ponto(278), f'{dia}')        
     cnv.drawString(F_Auxiliares.mm_ponto(154), F_Auxiliares.mm_ponto(278), f'{id_molde}') 
     if int(energia) == 12: x = 'Normal' 
@@ -268,8 +270,7 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(136), f'{float(altura_inicial) - float(leitura_exp4)}')
     #Esse loop mostra apenas os valores de força maiores que 0 para exibir no relatorio
     for cont in eixo_y_forca: 
-        if cont > 0:
-            forca_relatorio.append(cont)
+        if cont > 0: forca_relatorio.append(cont)
     cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(218), f'{str(forca_relatorio[0])}')
     cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(211), f'{str(forca_relatorio[1])}')
     cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(204), f'{str(forca_relatorio[2])}')
@@ -288,19 +289,18 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'{round((((float(forca_relatorio[4]))/70.31)*100),3)}')
     cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'{round((((float(forca_relatorio[7]))/105.46)*100),3)}')
     cnv.save()
-    messagebox.showwarning("Fim do ensaio",
-                           "O relatorio foi criado com sucesso e se encontra na pasta de destino")
+    messagebox.showwarning("Fim do ensaio", "O relatorio foi criado com sucesso e se encontra na pasta de destino")
     tela5.destroy()
- 
-"""=============================================================================================================================================================
+"""==================================================================================================================================================
                                              CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
-============================================================================================================================================================="""
+=================================================================================================================================================="""
 #CRIA JANELA DO TKINTER
 tela5 = Tk()
 tela5.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela5.title("Ensaio CBR"); tela5.geometry('1366x705+-11+1')
 img_fundo = PhotoImage(file=r"Funcionalidades\tela_ensaio_cbr.png"); label_fundo = Label(tela5, image=img_fundo); label_fundo.place(x=0, y=0)
 
-messagem = F_Auxiliares.Messege1(tela5)                           #CONECÇÃO COM AS LABELS DE EXIBIÇÃO DE DADOS DO ENSAIO
+#CONECÇÃO COM AS LABELS DE EXIBIÇÃO DE DADOS DO ENSAIO
+messagem = F_Auxiliares.Messege1(tela5)                     
 
 #CRIA OS BOTOES DA TELA
 B_Buscar = Button(tela5, text="Buscar", bd=4, bg="orange", font=("Arial", 18), command = botao_buscar)
@@ -326,6 +326,6 @@ Buscar_ports = threading.Thread(target=buscar_ComPorts); Buscar_ports.daemon = T
 recebendo_serial = threading.Thread(target=recebe_dados_serial); recebendo_serial.daemon = True
 
 tela5.mainloop()
-"""============================================================================================================================================================ 
+"""================================================================================================================================================= 
                                                                FIM DO PROGRAMA
-============================================================================================================================================================="""
+=================================================================================================================================================="""

@@ -9,20 +9,27 @@ import pymysql
                                                                 FUNÇÕES
 =================================================================================================================================================="""
 def Salvar():                                                  
-    #try:
-    #conecção com o bd e reset do banco
-    conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
-    cursor = conexao.cursor()
-    cursor.execute("TRUNCATE TABLE ensaio_marshall;");
-    #variaveis temporarias para guardar os valores digitados pelo usuario
-    x1 = registro.get();
-    sql = 'INSERT INTO ensaio_marshall (registro)'
-    'VALUES (%s)'
-    sql_data = [x1]
-    cursor.execute(sql, sql_data)
-    conexao.commit()
-    cursor.close()   
-    tela2.destroy()
+    try:
+        #conecção com o bd e reset do banco
+        conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
+        cursor = conexao.cursor()
+        cursor.execute("TRUNCATE TABLE ensaio_marshall;");
+        #variaveis temporarias para guardar os valores digitados pelo usuario
+        x1 = str(registro.get()); x2 = str(dia.get()); x3 = str(id_cp.get()); x4 = str(material.get()); x5 = str(obra.get()); 
+        x6 = str(operador.get()); x7 = str(trecho.get()); x8 = str(subtrecho.get()); x9 = float(peso_ar.get()); x10 = float(peso_imerso.get()); 
+        x11 = float(volume.get()); x12 = float(densi_aparent.get()); x13 = float(densi_teorica.get()); x14 = float(temperatura.get());
+        x15 = float(vazios.get()); x16 = float(v_c_b.get()); x17 = float(v_a_m.get()); x18 = float(r_v_b.get()); x19 = float(amostra_antes.get());
+        x20 = float(amostra_depois.get()); x21 = float(peso_betume.get()); x22 = float(teor_betume.get()); x23 = float(comp_diame.get()); 
+        x24 = float(leit_defle.get())
+        sql = 'INSERT INTO ensaio_marshall (registro, dia, id_cp, material, obra, operador, trecho, subtrecho, peso_ar, peso_imerso, volume, densi_aparente, densi_teorica, temperatura, vazios, v_c_b, v_a_m, r_v_b, amostra_antes, amostra_depois, peso_betume, teor_betume, comp_diame, leit_deflet) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        sql_data = [x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24]
+        cursor.execute(sql, sql_data)
+        conexao.commit()
+        cursor.close()   
+        tela2.destroy()
+        run(r"Funcionalidades\P4_TelaDeEnsaioMarshall.exe", shell=True)
+    except:
+        messagebox.showwarning("ERRO!!!!!","Verifique se os dados foram preenchidos corretamente")
     
 
 def Voltar():
@@ -32,13 +39,9 @@ def Voltar():
                                                         CRIAÇÃO DE WIDGETS,LAYOUT DA TELA 
 =================================================================================================================================================="""
 #definindo janela tkinter e suas respectivas imagens
-tela2 = Tk()
-tela2.iconbitmap(default=r"Funcionalidades\tela1.ico")
-tela2.title("Formulario Ensaio Marshall")
-tela2.geometry('1366x705+-11+1')
+tela2 = Tk(); tela2.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela2.title("Formulario Ensaio Marshall"); tela2.geometry('1366x705+-11+1')
 img_fundo = PhotoImage(file=r"Funcionalidades\tela_formulario_marshall.png")
-label_fundo = Label(tela2, image=img_fundo)
-label_fundo.place(x=0, y=0)
+label_fundo = Label(tela2, image=img_fundo); label_fundo.place(x=0, y=0)
 
 #definindo as caixas de entrada e suas repectivas posições
 registro = Entry(tela2, width=20); registro.place(width=102, height=26, x=135, y=123)
@@ -67,10 +70,8 @@ comp_diame = Entry(tela2, width=20); comp_diame.place(width=105, height=23, x=96
 leit_defle = Entry(tela2, width=20); leit_defle.place(width=95, height=29, x=968, y=555)
 
 #definindo botôes
-B_Salvar = Button(tela2,text="SALVAR",bg="green", command=Salvar, font=("Arial",20))
-B_Salvar.place(width=137, height=50, x=535, y=638)
-B_Voltar = Button(tela2,text="VOLTAR",bg="yellow",command=Voltar, font=("Arial",20))
-B_Voltar.place(width=137, height=50, x=735, y=638)
+B_Salvar = Button(tela2,text="SALVAR",bg="green", command=Salvar, font=("Arial",20)); B_Salvar.place(width=137, height=50, x=535, y=638)
+B_Voltar = Button(tela2,text="VOLTAR",bg="yellow",command=Voltar, font=("Arial",20)); B_Voltar.place(width=137, height=50, x=735, y=638)
 
 tela2.mainloop()
 """==================================================================================================================================================
