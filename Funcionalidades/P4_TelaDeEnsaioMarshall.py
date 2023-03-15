@@ -112,7 +112,7 @@ def iniciar_ensaio():
   
 #Grafico em tempo real até que deslocamento maximo, quando atingido retorna a prensa para a posição inicial e chama a função de criar o relatorio
 def plotar(i):
-    global eixo_y_forca, eixo_x_deslocamento, prensa_ligada, serial_forca, porcentagem_rompimento  
+    global eixo_y_forca, eixo_x_deslocamento, prensa_ligada, serial_forca, porcentagem_rompimento, forca_max_atual
     forca_max_atual = None
     for num in eixo_y_forca:
         if (forca_max_atual is None or num > forca_max_atual):         
@@ -158,7 +158,7 @@ def voltar_pagina():
 
 #Cria o pdf do relatorio e fecha o aplicativo
 def gerar_relatorio_marshall():
-    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_relatorio 
+    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_max_atual
     F_Auxiliares.comport.close()                                                                                #Fecha a comunicação serial
     #Connecta com o DB, pega os dados e manipula-os para usalos no relatorio
     conexao = pymysql.connect ( host='localhost', user='root', passwd='',database='db_prensa_software')
@@ -226,10 +226,31 @@ def gerar_relatorio_marshall():
     cnv.drawImage(r"Funcionalidades\grafico_relatorio_marshall.png",                   #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(120))
     cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(278), f'{registro}')                 #escreve no pdf no ponto escolhido   
-    cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(278), f'{dia}')   
+    cnv.drawString(F_Auxiliares.mm_ponto(70), F_Auxiliares.mm_ponto(278), f'{dia}')   
     cnv.drawString(F_Auxiliares.mm_ponto(140), F_Auxiliares.mm_ponto(278), f'{id_cp}') 
     cnv.drawString(F_Auxiliares.mm_ponto(28), F_Auxiliares.mm_ponto(270), f'{material}') 
     cnv.drawString(F_Auxiliares.mm_ponto(120), F_Auxiliares.mm_ponto(270), f'{obra}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(21), F_Auxiliares.mm_ponto(260), f'{trecho}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(134), F_Auxiliares.mm_ponto(260), f'{subtrecho}')
+    cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(251), f'{operador}')
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(231), f'{peso_ar}')
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(222), f'{peso_imerso}')    
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(213), f'{volume}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(204), f'{densi_aparente}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(195), f'{densi_teorica}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(186), f'{vazios}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(177), f'{v_c_b}')
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(168), f'{v_a_m}')
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(159), f'{r_v_b}')
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(150), f'{forca_max_atual}')
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(141), f'ESTABILIDADE CORRIGIDA')
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(132), f'R.T.')
+    cnv.drawString(F_Auxiliares.mm_ponto(46), F_Auxiliares.mm_ponto(123), f'COMP.')
+    cnv.drawString(F_Auxiliares.mm_ponto(145), F_Auxiliares.mm_ponto(231), f'{amostra_antes}')
+    cnv.drawString(F_Auxiliares.mm_ponto(145), F_Auxiliares.mm_ponto(221), f'{amostra_depois}')
+    cnv.drawString(F_Auxiliares.mm_ponto(145), F_Auxiliares.mm_ponto(212), f'{peso_betume}')
+    cnv.drawString(F_Auxiliares.mm_ponto(145), F_Auxiliares.mm_ponto(202), f'{teor_betume}')
+    cnv.drawString(F_Auxiliares.mm_ponto(145), F_Auxiliares.mm_ponto(193), f'{temperatura}')
     cnv.save()
     tela4.destroy()
 """==================================================================================================================================================
