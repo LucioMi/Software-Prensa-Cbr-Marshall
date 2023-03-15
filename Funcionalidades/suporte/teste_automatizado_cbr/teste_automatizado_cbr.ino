@@ -18,7 +18,7 @@ void loop() {
     Estado = Serial.read();                     // se estiver recebendo os dados os atribui à variavel Estado
   }
 
-  if (Estado==252){ 
+  if (Estado==251){ 
     digitalWrite(13,1);                    
     Serial.println(0.00);          //força
     Serial.println(0.00);          //deslocamento
@@ -47,14 +47,8 @@ void loop() {
     Serial.println(179000.00);
     Serial.println(635.00); 
     delay(1000);
-    Serial.println(199000.00);
-    Serial.println(762.00); 
-    delay(1000);
     Serial.println(223000.00);
     Serial.println(889.00); 
-    delay(1000);
-    Serial.println(244000.00);
-    Serial.println(1016.00); 
     delay(1000);
     Serial.println(267000.00);
     Serial.println(1143.00); 
@@ -65,17 +59,15 @@ void loop() {
     Serial.println(303500.00);
     Serial.println(1347.00);    
     delay(1000);
+    Serial.println(313500.00);
+    Serial.println(1401.00);    
+    delay(1000);
   }
   else{
     digitalWrite(13,0);    
     Serial.println(0.00);
     Serial.println(0.00);  
     delay(300);   
-    }
-  
-
-
-
-  
+    }  
 }
 

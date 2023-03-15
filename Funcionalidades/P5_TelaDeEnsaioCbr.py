@@ -90,32 +90,31 @@ def recebe_dados_serial():
 
 
 #Inicia o ensaio se as condições para realizalo estiverem sendo atendidas, informa o usuario.
-def iniciar_ensaio():       #voltar ate aqui
-    global serial_deslocamento, ax, animar
-    if F_Auxiliares.comport.is_open:  
-        if float(serial_deslocamento) < 0.1 or b == True:         
-            if F_Auxiliares.comport.is_open:
-                #Cria uma animação na tela que é o grafico de força x deslocamento
+def iniciar_ensaio():      
+    global serial_deslocamento, ax, animar, prensa_ligada
+    if float(serial_deslocamento) < 0.1 or b == True:         
+        if F_Auxiliares.comport.is_open:
+            if prensa_ligada == False:
                 F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, )) #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
-                figura = plt.Figure(figsize=(8, 4), dpi=60,facecolor='orange')
-                ax = figura.add_subplot(facecolor=(.0, .50, .0))
-                canva = FigureCanvasTkAgg(figura, tela5)
-                canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
-                animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)        #gera a animação e chama a função que a "comandara"
-                b = True                                                              #Variavel de controle so pra não gerar um bug na programação
-                messagem.botton('Ensaio em andamento!', "green")
-            else:
-                messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
-                messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
+                prensa_ligada = True
+            #Cria uma animação na tela que é o grafico de força x deslocamento
+            figura = plt.Figure(figsize=(8, 4), dpi=60,facecolor='orange')
+            ax = figura.add_subplot(facecolor=(.0, .50, .0))
+            canva = FigureCanvasTkAgg(figura, tela5)
+            canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
+            animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)        #gera a animação e chama a função que a "comandara"
+            b = True                                                              #Variavel de controle so pra não gerar um bug na programação
+            messagem.botton('Ensaio em andamento!', "green")
         else:
-            messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, ajuste o sensor de deslocamento")
-            messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
+            messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
+            messagem.botton('ATENÇÃO: Conecte o seu computador com a prensa...', "red")
+    else:
+        messagebox.showwarning("ERRO!!!!!", "Para iniciar o ensaio o deslocamento deve ser igual a 0, ajuste o sensor de deslocamento")
+        messagem.botton('ATENÇÃO: Ajuste o sensor de deslocamento para a posição 0', "red")
 
 #Grafico em tempo real até que deslocamento maximo, quando atingido retorna a prensa para a posição inicial e chama a função de criar o relatorio
 def plotar(i):
-    global eixo_y_forca, eixo_x_deslocamento, prensa_ligada
-    if prensa_ligada == False:     
-        prensa_ligada = True       
+    global eixo_y_forca, eixo_x_deslocamento, prensa_ligada      
     desl_max_atual = None
     for num in eixo_x_deslocamento:
         if (desl_max_atual is None or num > desl_max_atual):                                  
@@ -134,29 +133,29 @@ def plotar(i):
         F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,)) #byte que retorna a prensa para a posição 0 (deslocamento == 0)
         prensa_ligada = False 
         messagem.botton('Fim do ensaio!', "green")
-        gerar_relatorio_cbr()                                                             #função de criaro relatorio
+        gerar_relatorio_cbr()                                                             #função de criar o relatorio
 
 #Para a prensa imediatamente se o ensaio for interrompido, informa o usuario
 def parar_ensaio():
-    if F_Auxiliares.comport.is_open:
+    global prensa_ligada
+    if prensa_ligada == True:
         F_Auxiliares.comport.write((F_Auxiliares.Desliga_Prensa,))          #Escreve na porta serial o byte que deslica a prensa (254)
         messagem.botton('PARADA MANUAL!!!. O ensaio foi interrempido durante sua execução', "red")
         messagebox.showwarning("PARADA MANUAL!!!", "Amostra comprometida os dados do formulario seram apagados e você sera redirecionado para a tela inicial")
-        F_Auxiliares.comport.close() 
-        tela5.destroy()
+        tela4.destroy()
         run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
-    else:
-        messagem.botton('Informação: Se deseja voltar para a tela anterior clique no botão "VOLTAR"', "red")
+    elif prensa_ligada == False:
+        messagem.botton('Conecte-se a prensa para iniciar o ensaio ou volte para a pagina anterior', "yellow")
         messagebox.showwarning("ERRO!!!!!!!!!!","O ensaio ainda não foi iniciado")
 
 #Volta para a pagina inicial caso o ensaio não tenha ainda não tenha sido iniciado, informa o usuario
 def voltar_pagina():
+    global prensa_ligada
     if prensa_ligada == True:
         messagem.botton('Ensaio em andamento, se deseja parar o ensaio pressione o botão "PARAR"', "red")
-    else:
-        F_Auxiliares.comport.close() 
-        tela5.destroy()       
-        run(r"Funcionalidades\P3_FormularioCbr.exe", shell=True)
+    else: 
+        tela4.destroy()       
+        run(r"Funcionalidades\P2_FormularioMarshall.exe", shell=True)
 
 #Cria o pdf do relatorio e fecha o aplicativo
 def gerar_relatorio_cbr():    
@@ -284,10 +283,10 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(150), f'{str(forca_relatorio[10])}')
     cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(144), f'{str(forca_relatorio[11])}')
     cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(137), f'{str(forca_relatorio[12])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(198), f'{str(forca_relatorio[4])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(178), f'{str(forca_relatorio[7])}') 
-    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'{round((((float(forca_relatorio[4]))/70.31)*100),3)}')
-    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'{round((((float(forca_relatorio[7]))/105.46)*100),3)}')
+    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(198), f'{str(forca_relatorio[3])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(178), f'{str(forca_relatorio[6])}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'{round((((float(forca_relatorio[3]))/70.31)*100),3)}')
+    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'{round((((float(forca_relatorio[6]))/105.46)*100),3)}')
     cnv.save()
     messagebox.showwarning("Fim do ensaio", "O relatorio foi criado com sucesso e se encontra na pasta de destino")
     tela5.destroy()
