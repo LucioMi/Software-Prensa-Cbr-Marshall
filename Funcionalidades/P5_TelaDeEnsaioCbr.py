@@ -21,13 +21,13 @@ import pymysql
 =================================================================================================================================================="""
 buscar_ComPorts = False                                            #variavel que controla a busca por comunicação serial
 eixo_y_forca = []; eixo_x_deslocamento = [];                       #listas que guardam os valores de força e deslocamento
-forca_relatorio = []; deslocamento_relatorio = []
+forca_relatorio = []; deslocamento_relatorio = []                  #lista que guardam os valores de força e deslocamento relevantes para o relatorio
 serial_deslocamento = ''                                           #valor do deslocamento em tempo real
 deslo_max_ensaio = 12.79                                           #valor maximo de deslocamento do ensaio cbr (controla o fim do ensaio)
 prensa_ligada = False                                              #variavel que diz se o ensaio esta em andamento ou não
 data_atual = datetime.now()
-data_str = data_atual.strftime('Relatorio_Cbr_%d-%m-%Y_%H-%M')                   #transforma a data atual no nome do arquivo
-pastaApp = os.path.dirname(f'Relatorios\{data_str}.pdf')                                        #caminho da pasta do pdf
+data_str = data_atual.strftime('Relatorio_Cbr_%d-%m-%Y_%H-%M')     #transforma a data e hora atual numa string que sera o nome do relatorio
+pastaApp = os.path.dirname(f'Relatorios\{data_str}.pdf')           #caminho da pasta do que o pdf criado sera salvo
 """==================================================================================================================================================
                                                                 FUNÇÕES
 =================================================================================================================================================="""
@@ -73,14 +73,14 @@ def recebe_dados_serial():
     global eixo_y_forca, eixo_x_deslocamento, serial_deslocamento, deslo_max_ensaio
     while True:
         sleep(0.3)
-        if F_Auxiliares.comport.is_open:                                                  #verifica se ha comunicação serial
+        if F_Auxiliares.comport.is_open:                                                  #verifica se ha comunicação serial esta ativa
             F_Auxiliares.comport.reset_input_buffer()                                     #'limpa' a comunicação serial
             try:
                 serial_forca = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
                 serial_forca = serial_forca.replace("b'", ""); serial_forca = serial_forca.replace("r", "")
                 serial_forca = serial_forca.replace("\\", ""); serial_forca = (float(serial_forca.replace("n'", ""))) / 100
-                eixo_y_forca.append(serial_forca)
-                messagem.forca(str(serial_forca))
+                eixo_y_forca.append(serial_forca)                                          #salva o valor de força em uma lista 
+                messagem.forca(str(serial_forca))                                          #exibe o valor de força atual na tela
                 serial_deslocamento = str(F_Auxiliares.comport.readline())
                 serial_deslocamento = serial_deslocamento.replace("b'", ""); serial_deslocamento = serial_deslocamento.replace("r", "")
                 serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = (float(serial_deslocamento.replace("n'",""))) / 100
@@ -221,8 +221,7 @@ def gerar_relatorio_cbr():
     registro = str(cursor.fetchall()); registro = registro.replace("(('", ""); registro = registro.replace("',),)", "")
     cursor.close()                       
     #Escreve dados e imagens no pdf
-    cnv = canvas.Canvas(pastaApp + f'\{data_str}.pdf',
-                        pagesize=A4)                                                                               #pasta,nome e tamanho do pdf 
+    cnv = canvas.Canvas(pastaApp + f'\{data_str}.pdf', pagesize=A4)                                              #pasta,nome e tamanho do pdf 
     cnv.drawImage(r"Funcionalidades\relatorio_cbr_individual.png",        #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(210), height = F_Auxiliares.mm_ponto(297))
     cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(278), f'{registro}')                         #escreve no pdf no ponto escolhido
@@ -284,11 +283,8 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'{round((((float(forca_relatorio[6]))/105.46)*100),3)}')
     #Cria o um grafico com os valores de força e deslocamento e salva em uma imagem
     plt.plot(deslocamento_relatorio, forca_relatorio, ls='-', lw=2, marker='o')
-    plt.axis('tight')
-    plt.grid(True)
-    plt.ylabel('FORÇA (Kg/F)')
-    plt.xlabel('DESLOCAMENTO (mm)')
-    plt.title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm) ')
+    plt.axis('tight'); plt.grid(True)
+    plt.ylabel('FORÇA (Kg/F)'); plt.xlabel('DESLOCAMENTO (mm)'); plt.title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm) ')
     plt.savefig(r"Funcionalidades\grafico_relatorio_cbr.png", dpi=150)
     cnv.drawImage(r"Funcionalidades\grafico_relatorio_cbr.png",            #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(120))
@@ -316,8 +312,8 @@ B_Voltar = Button(tela5, text="VOLTAR", bg="gold", bd=4, font=("Arial", 18), com
 B_Buscar.place(width=122, height=34, x=91, y=344); B_Conectar.place(width=122, height=34, x=91, y=390); 
 B_Iniciar.place(width=211, height=53, x=45, y=458); B_Parar.place(width=211, height=53, x=45, y=532); B_Voltar.place(width=211,height=53,x=45, y=606)
 #CRIA LISTA CLICAVEL PARA O USUARIO ESCOLHER A COM PORT
-lista_ComPorts = Listbox(tela5, height=1, width=7, bd=10, font="Arial 10", bg="black",
-                    fg="green", highlightcolor="black", highlightthickness=0, highlightbackground="black")
+lista_ComPorts = Listbox(tela5, height=1, width=7, bd=10, font="Arial 10", bg="black", fg="green",
+                       highlightcolor="black", highlightthickness=0, highlightbackground="black")
 lista_ComPorts.place(width=122, height=99, x=90, y=233); lista_ComPorts.insert(END, "------")
 lista_ComPorts.bind('<Double-Button>', lambda e: messagem.port("orange", lista_ComPorts.get(ANCHOR)))
 

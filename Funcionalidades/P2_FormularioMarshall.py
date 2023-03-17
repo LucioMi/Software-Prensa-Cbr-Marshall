@@ -8,12 +8,12 @@ import pymysql
 """==================================================================================================================================================
                                                                 FUNÇÕES
 =================================================================================================================================================="""
+#salva os valores digitados pelo usuario no db, fecha a janela atual e abre a tela de ensaio
 def Salvar():                                                  
     try:
         #conecção com o bd e reset do banco
-        conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software')
-        cursor = conexao.cursor()
-        cursor.execute("TRUNCATE TABLE ensaio_marshall;");
+        conexao = pymysql.connect(host='localhost', user='root', passwd='', database='db_prensa_software'); cursor = conexao.cursor()
+        cursor.execute("TRUNCATE TABLE ensaio_marshall;")
         #variaveis temporarias para guardar os valores digitados pelo usuario
         x1 = str(registro.get()); x2 = str(dia.get()); x3 = str(id_cp.get()); x4 = str(material.get()); x5 = str(obra.get()); 
         x6 = str(operador.get()); x7 = str(trecho.get()); x8 = str(subtrecho.get()); x9 = float(peso_ar.get()); x10 = float(peso_imerso.get()); 
@@ -22,25 +22,22 @@ def Salvar():
         x20 = float(amostra_depois.get()); x21 = float(peso_betume.get()); x22 = float(teor_betume.get()); x23 = float(area.get()); 
         x24 = float(leit_defle.get()); x25 = float(estab_corrigida.get())
         sql = 'INSERT INTO ensaio_marshall (registro, dia, id_cp, material, obra, operador, trecho, subtrecho, peso_ar, peso_imerso, volume, densi_aparente, densi_teorica, temperatura, vazios, v_c_b, v_a_m, r_v_b, amostra_antes, amostra_depois, peso_betume, teor_betume, area, leit_deflet,estab_corrigida) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-        sql_data = [x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24,x25]
-        cursor.execute(sql, sql_data)
-        conexao.commit()
-        cursor.close()   
-        tela2.destroy()
-        run(r"Funcionalidades\P4_TelaDeEnsaioMarshall.exe", shell=True)
+        sql_data = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25]
+        cursor.execute(sql, sql_data); conexao.commit(); cursor.close()   
+        tela2.destroy(); run(r"Funcionalidades\P4_TelaDeEnsaioMarshall.exe", shell=True)
     except:
-        messagebox.showwarning("ERRO!!!!!","Verifique se os dados foram preenchidos corretamente")
-    
+        messagebox.showwarning("ERRO!!!!!","Verifique se os dados foram preenchidos corretamente:\n\n    Todos os campos devem ser "
+        "preenchidos\n\n    Apenas os campos registro, data, identificação do cp, material, obra, operador, trecho e subtrecho admitem letras e " "numeros os demais valores são numericos\n\n    Os valores numericos devem ser separados usando o  ponto final (.) como separador decimal")
+
+#volta para a janela anterior (tela P1)
 def Voltar():
-    tela2.destroy()
-    run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
+    tela2.destroy(); run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
 """==================================================================================================================================================
-                                                        CRIAÇÃO DE WIDGETS,LAYOUT DA TELA 
+                                                CRIAÇÃO DA TELA, WIDGETS E BOTÕES
 =================================================================================================================================================="""
-#definindo janela tkinter e suas respectivas imagens
+#definindo janela tkinter e suas configurações
 tela2 = Tk(); tela2.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela2.title("Formulario Ensaio Marshall"); tela2.geometry('1366x705+-11+1')
-img_fundo = PhotoImage(file=r"Funcionalidades\tela_formulario_marshall.png")
-label_fundo = Label(tela2, image=img_fundo); label_fundo.place(x=0, y=0)
+img_fundo=PhotoImage(file=r"Funcionalidades\tela_formulario_marshall.png"); label_fundo = Label(tela2, image=img_fundo); label_fundo.place(x=0, y=0)
 
 #definindo as caixas de entrada e suas repectivas posições
 registro = Entry(tela2, width=20); registro.place(width=102, height=26, x=135, y=123)
@@ -75,5 +72,5 @@ B_Voltar = Button(tela2,text="VOLTAR",bg="yellow",command=Voltar, font=("Arial",
 
 tela2.mainloop()
 """==================================================================================================================================================
-                                               FIM DO PROGRAMA
+                                                           FIM DO PROGRAMA
 =================================================================================================================================================="""

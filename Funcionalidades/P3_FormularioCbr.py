@@ -8,6 +8,7 @@ import pymysql
 """==================================================================================================================================================
                                                                FUNÇÕES
 =================================================================================================================================================="""
+#salva os valores digitados pelo usuario no db, fecha a janela atual e abre a tela de ensaio
 def Salvar():
     try:
         #conecção com o bd e reset do banco
@@ -24,22 +25,22 @@ def Salvar():
         sql = 'INSERT INTO ensaio_cbr (registro, dia, material, id_molde, amostra, furo, energia, obra, operador, trecho, subtrecho,massa_amostra_cilindro, massa_cilindro, volume, massa_amosta, peso_esp_umido, teor_umidade_media, massa_esp_ap_seca, altura_inicial,leitura_exp0, leitura_exp1, leitura_exp2, leitura_exp3, leitura_exp4, exp_umidade_otima) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
         sql_data = [x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24,x25]
         cursor.execute(sql, sql_data); conexao.commit(); cursor.close()   
-        tela3.destroy()
-        run(r"Funcionalidades\P5_TelaDeEnsaioCbr.exe", shell=True)
+        tela3.destroy(); run(r"Funcionalidades\P5_TelaDeEnsaioCbr.exe", shell=True)
     except:
-        messagebox.showwarning("ERRO!!!!!","Verifique se os dados foram preenchidos corretamente")
+        messagebox.showwarning("ERRO!!!!!","Verifique se os dados foram preenchidos corretamente:\n\n    Todos os campos devem ser "
+        "preenchidos (inclusive o campo energia com um dos repectivos valores disponiveis)\n\n    Apenas os campos registro, data, material, numero" 
+        "do molde, amostra, furo, obra, operador, trecho e subtrecho admitem letras e numeros os demais valores são numericos\n\n    Os valores "
+        "numericos devem ser separados usando o  ponto final (.) como separador decimal")
 
+#volta para a janela anterior (tela P1)
 def Voltar():
-    tela3.destroy()
-    run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
+    tela3.destroy(); run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
 """==================================================================================================================================================
                                                CRIAÇÃO DE WIDGETS,LAYOUT DA TELA 
 =================================================================================================================================================="""
 #definindo janela tkinter e suas respectivas imagens
-tela3 = Tk()
-tela3.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela3.title("Formulario Ensaio CBR"); tela3.geometry('1366x705+-11+1')
-img_fundo = PhotoImage(file=r"Funcionalidades\tela_formulario_cbr.png")
-label_fundo = Label(tela3, image=img_fundo); label_fundo.place(x=0, y=0)
+tela3 = Tk(); tela3.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela3.title("Formulario Ensaio CBR"); tela3.geometry('1366x705+-11+1')
+img_fundo = PhotoImage(file=r"Funcionalidades\tela_formulario_cbr.png"); label_fundo = Label(tela3, image=img_fundo); label_fundo.place(x=0, y=0)
 
 #definindo as caixas de entrada e suas repectivas posições
 registro = Entry(tela3, width=20); registro.place(width=113, height=26, x=151, y=138)
