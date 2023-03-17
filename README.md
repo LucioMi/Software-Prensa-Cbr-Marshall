@@ -4,8 +4,7 @@ uma prensa que realiza o ensaio CBR (Indice
 de Suporte California) de acordo com a norma
 NBR - 9895 , e o ensaio Marshall de acordo
 com a norma ME-043/95. Após a realização do
-ensaio a prensa gera um relatorio no formato
-pdf.
+ensaio  o software  gera um relatorio em pdf.
     A pasta Aplicativo contem um contem o 
 arquivo 'Aplicativo.exe' que é o exexutavel
 da aplicação. 
