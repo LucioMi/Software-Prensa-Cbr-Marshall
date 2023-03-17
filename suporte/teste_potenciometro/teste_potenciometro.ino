@@ -47,10 +47,14 @@ void loop() {
     digitalWrite(ledArduino,HIGH);
   }
 //Liga o motor da prensa em sentido contrario da compressão até que o deslocamento lido seja 0
-  else if(Estado==253){                         
-    digitalWrite(rele1Pin,HIGH);
-    digitalWrite(rele2Pin,HIGH);
-    digitalWrite(ledArduino,HIGH);
+  else if(Estado==253){
+    while (deslocamento > 0.1){             
+      digitalWrite(rele1Pin,HIGH);
+      digitalWrite(rele2Pin,HIGH);
+      digitalWrite(ledArduino,HIGH);
+      deslocamento = analogRead(desloPin) * 25.0 / 1023.0;
+    }
+    Estado = 254;
   }
 //Deixa o motor desligado caso nenhum solicitação de ensaio seja enviado ou por solicitação do usuario na pagina de ensaio
   else{                              
@@ -64,9 +68,9 @@ void loop() {
   if ((tempoAtual - tempoAnterior) > 800){                           //'temporizador' que não 'pausa' o programa
     tempoAnterior = tempoAtual;
     forca = analogRead(forcaPin) * 5000.0 / 1023.0;                  //recebe o valor do sensor e o coverte para a escala real
-    deslocamento = analogRead(desloPin) * 25.0 / 1023.0;
-    Serial.print(forca);                                             //Envia o valor de força lido pelo sensor por comunicação serial
-    Serial.print(deslocamento);
+    deslocamento = analogRead(desloPin) * 25.0 / 1023.0; 
+    Serial.println(forca);                                             //Envia o valor de força lido pelo sensor por comunicação serial
+    Serial.println(deslocamento);
   }
 }
 

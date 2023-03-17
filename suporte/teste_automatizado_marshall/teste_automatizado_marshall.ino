@@ -20,48 +20,48 @@ void loop() {
 
   if (Estado==251){ 
     digitalWrite(13,1);                    
-    Serial.println(0.00);          //força
-    Serial.println(0.00);          //deslocamento
+    Serial.println(0.0);          //força
+    Serial.println(0.0);          //deslocamento
     delay(800);
-    Serial.println(66000.00);
-    Serial.println(127.00); 
+    Serial.println(660.0);
+    Serial.println(1.27); 
     delay(800);    
-    Serial.println(112000.00);
-    Serial.println(254.00); 
+    Serial.println(1120.0);
+    Serial.println(2.54); 
     delay(800);
-    Serial.println(142000.00);
-    Serial.println(381.00); 
+    Serial.println(1420.0);
+    Serial.println(3.81); 
     delay(800);
-    Serial.println(162000.00);
-    Serial.println(580.00); 
+    Serial.println(1620.0);
+    Serial.println(5.80); 
     delay(800);
-    Serial.println(179000.00);
-    Serial.println(635.00); 
+    Serial.println(1790.0);
+    Serial.println(6.35); 
     delay(800);
-    Serial.println(300000.00);
-    Serial.println(889.00); 
+    Serial.println(3000.0);
+    Serial.println(8.89); 
     delay(800);
-    Serial.println(280000.00);
-    Serial.println(1043.00); 
+    Serial.println(2800.0);
+    Serial.println(10.43); 
     delay(800);
-    Serial.println(219460.00);
-    Serial.println(1205.00); 
+    Serial.println(2194.60);
+    Serial.println(12.05); 
     delay(800);
-    Serial.println(200000.00);
-    Serial.println(1400.00);    
+    Serial.println(2000.0);
+    Serial.println(14.0);    
     delay(800);
-    Serial.println(190000.00);
-    Serial.println(1450.00);    
+    Serial.println(1900.0);
+    Serial.println(14.50);    
     delay(800);
-    Serial.println(180000.00);
-    Serial.println(1490.00);    
+    Serial.println(1800.0);
+    Serial.println(14.90);    
     delay(800);
 
   }
   else{
     digitalWrite(13,0);    
-    Serial.println(0.00);
-    Serial.println(0.00);  
+    Serial.println(0.0);
+    Serial.println(0.0);  
     delay(300);   
     }  
 }

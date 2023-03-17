@@ -20,56 +20,56 @@ void loop() {
 
   if (Estado==252){ 
     digitalWrite(13,1);                    
-    Serial.println(0.00);          //força
-    Serial.println(0.00);          //deslocamento
+    Serial.println(0.0);          //força
+    Serial.println(0.0);          //deslocamento
     delay(1000);
-    Serial.println(32000.00);
-    Serial.println(63.00);
+    Serial.println(320.0);
+    Serial.println(0.63);
     delay(1000);
-    Serial.println(66000.00);
-    Serial.println(127.00); 
+    Serial.println(660.0);
+    Serial.println(1.27); 
     delay(1000);    
-    Serial.println(93000.00);
-    Serial.println(190.00); 
+    Serial.println(930.0);
+    Serial.println(1.90); 
     delay(1000);  
-    Serial.println(112000.00);
-    Serial.println(254.00); 
+    Serial.println(1120.0);
+    Serial.println(2.54); 
     delay(1000);
-    Serial.println(127000.00);
-    Serial.println(317.00); 
+    Serial.println(1270.0);
+    Serial.println(3.17); 
     delay(1000);
-    Serial.println(142000.00);
-    Serial.println(381.00); 
+    Serial.println(1420.0);
+    Serial.println(3.81); 
     delay(1000);
-    Serial.println(162000.00);
-    Serial.println(580.00); 
+    Serial.println(1620.0);
+    Serial.println(5.80); 
     delay(1000);
-    Serial.println(179000.00);
-    Serial.println(635.00); 
+    Serial.println(1790.0);
+    Serial.println(6.35); 
     delay(1000);
-    Serial.println(199000.00);
-    Serial.println(762.00); 
+    Serial.println(1990.0);
+    Serial.println(7.62); 
     delay(1000);
-    Serial.println(223000.00);
-    Serial.println(889.00); 
+    Serial.println(2230.0);
+    Serial.println(8.89); 
     delay(1000);
-    Serial.println(244000.00);
-    Serial.println(1016.00); 
+    Serial.println(2440.0);
+    Serial.println(10.16); 
     delay(1000);
-    Serial.println(267000.00);
-    Serial.println(1143.00); 
+    Serial.println(2670.0);
+    Serial.println(11.43); 
     delay(1000);
-    Serial.println(291500.00);
-    Serial.println(1270.00);    
+    Serial.println(2915.0);
+    Serial.println(12.70);    
     delay(1000);
-    Serial.println(353500.00);
-    Serial.println(1358.00);    
+    Serial.println(3535.0);
+    Serial.println(13.58);    
     delay(1000);
   }
   else{
     digitalWrite(13,0);    
-    Serial.println(0.00);
-    Serial.println(0.00);  
+    Serial.println(0.0);
+    Serial.println(0.0);  
     delay(300);   
     }  
 }

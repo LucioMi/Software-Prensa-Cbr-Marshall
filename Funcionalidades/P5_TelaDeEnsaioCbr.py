@@ -72,18 +72,18 @@ def botao_conectar():
 def recebe_dados_serial():
     global eixo_y_forca, eixo_x_deslocamento, serial_deslocamento, deslo_max_ensaio
     while True:
-        sleep(0.3)
+        sleep(0.1)
         if F_Auxiliares.comport.is_open:                                                  #verifica se ha comunicação serial esta ativa
             F_Auxiliares.comport.reset_input_buffer()                                     #'limpa' a comunicação serial
             try:
                 serial_forca = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
                 serial_forca = serial_forca.replace("b'", ""); serial_forca = serial_forca.replace("r", "")
-                serial_forca = serial_forca.replace("\\", ""); serial_forca = (float(serial_forca.replace("n'", ""))) / 100
+                serial_forca = serial_forca.replace("\\", ""); serial_forca = (float(serial_forca.replace("n'", ""))) 
                 eixo_y_forca.append(serial_forca)                                          #salva o valor de força em uma lista 
                 messagem.forca(str(serial_forca))                                          #exibe o valor de força atual na tela
                 serial_deslocamento = str(F_Auxiliares.comport.readline())
                 serial_deslocamento = serial_deslocamento.replace("b'", ""); serial_deslocamento = serial_deslocamento.replace("r", "")
-                serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = (float(serial_deslocamento.replace("n'",""))) / 100
+                serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = (float(serial_deslocamento.replace("n'","")))
                 eixo_x_deslocamento.append(serial_deslocamento)
                 messagem.deslocamento(str(serial_deslocamento))
             except IOError:
@@ -130,6 +130,8 @@ def plotar(i):
             ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
             ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
             ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
+        else:
+            sleep(0.1)
     else:
         F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,)) #byte que retorna a prensa para a posição 0 (deslocamento == 0)
         F_Auxiliares.comport.close()                                                                                #Fecha a comunicação serial
@@ -227,9 +229,12 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(278), f'{registro}')                         #escreve no pdf no ponto escolhido
     cnv.drawString(F_Auxiliares.mm_ponto(86), F_Auxiliares.mm_ponto(278), f'{dia}')        
     cnv.drawString(F_Auxiliares.mm_ponto(154), F_Auxiliares.mm_ponto(278), f'{id_molde}') 
-    if int(energia) == 12: x = 'Normal' 
-    elif int(energia) == 26: x = 'Intermediária'
-    else: x= 'Modificada'      
+    if int(energia) == 12: 
+        x = 'Normal' 
+    elif int(energia) == 26: 
+        x = 'Intermediária'
+    else: 
+        x= 'Modificada'      
     cnv.drawString(F_Auxiliares.mm_ponto(23), F_Auxiliares.mm_ponto(270), f'{x}')       
     cnv.drawString(F_Auxiliares.mm_ponto(90), F_Auxiliares.mm_ponto(270), f'{energia}')        
     cnv.drawString(F_Auxiliares.mm_ponto(134), F_Auxiliares.mm_ponto(270), f'{amostra}')        
@@ -289,6 +294,7 @@ def gerar_relatorio_cbr():
     cnv.drawImage(r"Funcionalidades\grafico_relatorio_cbr.png",            #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(120))
     cnv.save()
+    print(f'força={forca_relatorio}\ndesloc={deslocamento_relatorio}')
     messagebox.showwarning("Fim do ensaio", "O relatorio foi criado com sucesso e se encontra na pasta de destino")
     tela5.destroy()
 """==================================================================================================================================================
@@ -296,8 +302,8 @@ def gerar_relatorio_cbr():
 =================================================================================================================================================="""
 #CRIA JANELA DO TKINTER
 tela5 = Tk()
-tela5.iconbitmap(default=r"Codigo_fonte\Funcionalidades\tela1.ico"); tela5.title("Ensaio CBR"); tela5.geometry('1366x705+-11+1')
-img_fundo = PhotoImage(file=r"Codigo_fonte\Funcionalidades\tela_ensaio_cbr.png")
+tela5.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela5.title("Ensaio CBR"); tela5.geometry('1366x705+-11+1')
+img_fundo = PhotoImage(file=r"Funcionalidades\tela_ensaio_cbr.png")
 label_fundo = Label(tela5, image=img_fundo); label_fundo.place(x=0, y=0)
 
 #CONECÇÃO COM AS LABELS DE EXIBIÇÃO DE DADOS DO ENSAIO

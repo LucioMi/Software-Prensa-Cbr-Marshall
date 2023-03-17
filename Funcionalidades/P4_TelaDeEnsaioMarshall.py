@@ -71,27 +71,27 @@ def botao_conectar():
 def recebe_dados_serial():
     global eixo_y_forca, eixo_x_deslocamento, serial_forca, serial_deslocamento
     while True:
-        sleep(0.3)
+        sleep(0.1)
         if F_Auxiliares.comport.is_open:                                                  #verifica se ha comunicação serial
             F_Auxiliares.comport.reset_input_buffer()                                     #'limpa' a comunicação serial
             try:
                 serial_forca = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
                 serial_forca = serial_forca.replace("b'", ""); serial_forca = serial_forca.replace("r", "")
-                serial_forca = serial_forca.replace("\\", ""); serial_forca = (float(serial_forca.replace("n'", ""))) / 100
+                serial_forca = serial_forca.replace("\\", ""); serial_forca = float((serial_forca.replace("n'", ""))) 
                 eixo_y_forca.append(serial_forca)
                 messagem.forca(str(serial_forca))
                 serial_deslocamento = str(F_Auxiliares.comport.readline())
                 serial_deslocamento = serial_deslocamento.replace("b'", ""); serial_deslocamento = serial_deslocamento.replace("r", "")
-                serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = (float(serial_deslocamento.replace("n'",""))) / 100
+                serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = float((serial_deslocamento.replace("n'",""))) 
                 eixo_x_deslocamento.append(serial_deslocamento)
-                messagem.deslocamento(str(serial_deslocamento))   
+                messagem.deslocamento(str(serial_deslocamento))
             except IOError:
                 messagem.forca("ERRO!"); messagem.deslocamento("ERRO!")
 
 #Inicia o ensaio se as condições para realizalo estiverem sendo atendidas, informa o usuario.
 def iniciar_ensaio():       
     global serial_deslocamento, ax, animar, prensa_ligada
-    if float(serial_deslocamento) < 0.1 or b == True:          
+    if float(serial_deslocamento) < 0.1:# or b == True:          
         if F_Auxiliares.comport.is_open:
             if prensa_ligada == False:
                 F_Auxiliares.comport.write((F_Auxiliares.Liga_Marshall, ))         #envia o byte que é o comando de ligar em modo CBR (251) na serial
@@ -127,6 +127,8 @@ def plotar(i):
             ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
             ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
             ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
+        else:
+            sleep(0.1)
     else:
         F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,)) #byte que retorna a prensa para a posição 0 (deslocamento == 0)
         prensa_ligada = False 
@@ -161,7 +163,7 @@ def gerar_relatorio_marshall():
     global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_max_atual
     F_Auxiliares.comport.close()                                                                                #Fecha a comunicação serial
     #Connecta com o DB, pega os dados e manipula-os para usalos no relatorio
-    conexao = pymysql.connect ( host='localhost', user='root', passwd='',database='db_prensa_software')
+    conexao = pymysql.connect ( host='localhost', user='root', passwd='', database='db_prensa_software')
     cursor = conexao.cursor()
     cursor.execute(f"SELECT registro FROM ensaio_marshall;") 
     registro = str(cursor.fetchall()); registro = registro.replace("(('", ""); registro = registro.replace("',),)", "")
@@ -214,7 +216,7 @@ def gerar_relatorio_marshall():
     cursor.execute(f"SELECT estab_corrigida FROM ensaio_marshall;") 
     estab_corrigida = str(cursor.fetchall()); estab_corrigida = estab_corrigida.replace("((","");estab_corrigida = estab_corrigida.replace(",),)","")
     #Cria o um grafico com os valores de força e deslocamento e salva em uma imagem
-    plt.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o')
+    plt.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o',color='black')
     plt.axis('tight')
     plt.grid(True)
     plt.ylabel('FORÇA (Kg/F)')
@@ -226,7 +228,7 @@ def gerar_relatorio_marshall():
     cnv.drawImage(r"Funcionalidades\relatorio_marshall_individual.png",                #coloca a imagem no ponto especolhido e no tamanho escolhido
                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(210), height = F_Auxiliares.mm_ponto(297))
     cnv.drawImage(r"Funcionalidades\grafico_relatorio_marshall.png",                   #coloca a imagem no ponto especolhido e no tamanho escolhido
-                  F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(126))
+                   F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(126))
     cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(278), f'{registro}')                 #escreve no pdf no ponto escolhido   
     cnv.drawString(F_Auxiliares.mm_ponto(70), F_Auxiliares.mm_ponto(278), f'{dia}')   
     cnv.drawString(F_Auxiliares.mm_ponto(140), F_Auxiliares.mm_ponto(278), f'{id_cp}') 
@@ -253,7 +255,7 @@ def gerar_relatorio_marshall():
     cnv.drawString(F_Auxiliares.mm_ponto(145), F_Auxiliares.mm_ponto(202), f'{teor_betume}')
     cnv.drawString(F_Auxiliares.mm_ponto(150), F_Auxiliares.mm_ponto(152), f'{temperatura}')
     cnv.drawString(F_Auxiliares.mm_ponto(150), F_Auxiliares.mm_ponto(142), f'{forca_max_atual}')
-    cnv.drawString(F_Auxiliares.mm_ponto(150), F_Auxiliares.mm_ponto(133),f'{ (float(forca_max_atual) * 2) / float(area) }')
+    cnv.drawString(F_Auxiliares.mm_ponto(150), F_Auxiliares.mm_ponto(133),f'{round((float(forca_max_atual) * 2) / float(area),2)}')
     cnv.save()
     messagebox.showwarning("Fim do ensaio", "O relatorio foi criado com sucesso e se encontra na pasta de destino")
     tela4.destroy()
