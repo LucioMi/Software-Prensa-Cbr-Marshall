@@ -17,6 +17,7 @@ const int ledArduino = 13;               //Led nativo do arduino (sera usado par
 unsigned long tempoAtual = 0;            //Tempo atual que sera usado no delay
 unsigned long tempoAnterior = 0;         //Tempo de referencia para a nova contagem de tempo
 float forca, deslocamento;               //variaveis de carga e deslocamento para receber os valores lidos pelos sensores
+String sinal_sensores;
 
 void setup() {
   pinMode(forcaPin,INPUT);               //Define que o pino da celula de carga é uma entrada
@@ -28,7 +29,6 @@ void setup() {
 }
 
 void loop() {
-
 //verifica se a dados sendo recebidos por meio da comunicação serial, caso sim atribui o valor recebido à variavel Estado (variavel de comando) 
   if (Serial.available() > 0) {                      
     Estado = Serial.read();                      
@@ -69,8 +69,10 @@ void loop() {
     tempoAnterior = tempoAtual;
     forca = analogRead(forcaPin) * 5000.0 / 1023.0;                  //recebe o valor do sensor e o coverte para a escala real
     deslocamento = analogRead(desloPin) * 25.0 / 1023.0; 
-    Serial.println(forca);                                             //Envia o valor de força lido pelo sensor por comunicação serial
-    Serial.println(deslocamento);
+    sinal_sensores = String(forca);
+    sinal_sensores.concat('z');
+    sinal_sensores.concat(deslocamento);
+    Serial.println(sinal_sensores);                                             
   }
 }
 

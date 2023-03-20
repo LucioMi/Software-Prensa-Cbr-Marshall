@@ -33,7 +33,7 @@ def Salvar():
 def Voltar():
     tela2.destroy(); run(r"Funcionalidades\P1_TelaPrincipal.exe", shell=True)
 """==================================================================================================================================================
-                                                CRIAÇÃO DA TELA, WIDGETS E BOTÕES
+                                                   CRIAÇÃO DA TELA, WIDGETS E BOTÕES
 =================================================================================================================================================="""
 #definindo janela tkinter e suas configurações
 tela2 = Tk(); tela2.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela2.title("Formulario Ensaio Marshall"); tela2.geometry('1366x705+-11+1')

@@ -69,22 +69,18 @@ def botao_conectar():
 
 #Recebe os dados de força e deslocamento do microcontrolador, trata esses dados, salva esses dados em variaveis e exibe para o usuario
 def recebe_dados_serial():
-    global eixo_y_forca, eixo_x_deslocamento, serial_forca, serial_deslocamento
+    global eixo_y_forca, eixo_x_deslocamento, serial_deslocamento, serial_forca
     while True:
         sleep(0.1)
-        if F_Auxiliares.comport.is_open:                                                  #verifica se ha comunicação serial
+        if F_Auxiliares.comport.is_open:                                                  #verifica se ha comunicação serial esta ativa
             F_Auxiliares.comport.reset_input_buffer()                                     #'limpa' a comunicação serial
             try:
-                serial_forca = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
-                serial_forca = serial_forca.replace("b'", ""); serial_forca = serial_forca.replace("r", "")
-                serial_forca = serial_forca.replace("\\", ""); serial_forca = float((serial_forca.replace("n'", ""))) 
-                eixo_y_forca.append(serial_forca)
-                messagem.forca(str(serial_forca))
-                serial_deslocamento = str(F_Auxiliares.comport.readline())
-                serial_deslocamento = serial_deslocamento.replace("b'", ""); serial_deslocamento = serial_deslocamento.replace("r", "")
-                serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = float((serial_deslocamento.replace("n'",""))) 
-                eixo_x_deslocamento.append(serial_deslocamento)
-                messagem.deslocamento(str(serial_deslocamento))
+                sinal_serial = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
+                sinal_serial = sinal_serial.replace("b'", ""); sinal_serial = sinal_serial.replace("r", "")
+                sinal_serial = sinal_serial.replace("\\", ""); sinal_serial = (sinal_serial.replace("n'", ""))
+                sinal_serial = sinal_serial.split('z',1); serial_forca = sinal_serial[0]; serial_deslocamento = sinal_serial [1]
+                eixo_y_forca.append(float(serial_forca)) ; eixo_x_deslocamento.append(float(serial_deslocamento))
+                messagem.forca(str(serial_forca)); messagem.deslocamento(str(serial_deslocamento))
             except IOError:
                 messagem.forca("ERRO!"); messagem.deslocamento("ERRO!")
 
@@ -117,7 +113,7 @@ def plotar(i):
     for num in eixo_y_forca:
         if (forca_max_atual is None or num > forca_max_atual):         
             forca_max_atual = num  
-    if (serial_forca + (forca_max_atual * porcentagem_rompimento)) >= forca_max_atual:           
+    if (float(serial_forca) + (forca_max_atual * porcentagem_rompimento)) >= forca_max_atual:           
         if len(eixo_y_forca) == len(eixo_x_deslocamento):
             #Gerando grafico em tempo real
             ax.clear()

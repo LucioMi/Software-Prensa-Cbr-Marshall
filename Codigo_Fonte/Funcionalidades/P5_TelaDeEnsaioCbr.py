@@ -20,8 +20,7 @@ import pymysql
                                                                 VARIAVEIS
 =================================================================================================================================================="""
 buscar_ComPorts = False                                            #variavel que controla a busca por comunicação serial
-eixo_y_forca = []; eixo_x_deslocamento = [];                       #listas que guardam os valores de força e deslocamento
-forca_relatorio = []; deslocamento_relatorio = []                  #lista que guardam os valores de força e deslocamento relevantes para o relatorio
+eixo_y_forca = []; eixo_x_deslocamento = []                       #listas que guardam os valores de força e deslocamento
 serial_deslocamento = ''                                           #valor do deslocamento em tempo real
 deslo_max_ensaio = 12.79                                           #valor maximo de deslocamento do ensaio cbr (controla o fim do ensaio)
 prensa_ligada = False                                              #variavel que diz se o ensaio esta em andamento ou não
@@ -76,35 +75,29 @@ def recebe_dados_serial():
         if F_Auxiliares.comport.is_open:                                                  #verifica se ha comunicação serial esta ativa
             F_Auxiliares.comport.reset_input_buffer()                                     #'limpa' a comunicação serial
             try:
-                serial_forca = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
-                serial_forca = serial_forca.replace("b'", ""); serial_forca = serial_forca.replace("r", "")
-                serial_forca = serial_forca.replace("\\", ""); serial_forca = (float(serial_forca.replace("n'", ""))) 
-                eixo_y_forca.append(serial_forca)                                          #salva o valor de força em uma lista 
-                messagem.forca(str(serial_forca))                                          #exibe o valor de força atual na tela
-                serial_deslocamento = str(F_Auxiliares.comport.readline())
-                serial_deslocamento = serial_deslocamento.replace("b'", ""); serial_deslocamento = serial_deslocamento.replace("r", "")
-                serial_deslocamento = serial_deslocamento.replace("\\",""); serial_deslocamento = (float(serial_deslocamento.replace("n'","")))
-                eixo_x_deslocamento.append(serial_deslocamento)
-                messagem.deslocamento(str(serial_deslocamento))
+                sinal_serial = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
+                sinal_serial = sinal_serial.replace("b'", ""); sinal_serial = sinal_serial.replace("r", "")
+                sinal_serial = sinal_serial.replace("\\", ""); sinal_serial = (sinal_serial.replace("n'", ""))
+                sinal_serial = sinal_serial.split('z',1); serial_forca = sinal_serial[0]; serial_deslocamento = sinal_serial [1]
+                eixo_y_forca.append(float(serial_forca)) ; eixo_x_deslocamento.append(float(serial_deslocamento))
+                messagem.forca(serial_forca); messagem.deslocamento(serial_deslocamento)
             except IOError:
                 messagem.forca("ERRO!"); messagem.deslocamento("ERRO!")
-
-
+    
 #Inicia o ensaio se as condições para realizalo estiverem sendo atendidas, informa o usuario.
 def iniciar_ensaio():      
     global serial_deslocamento, ax, animar, prensa_ligada
-    if float(serial_deslocamento) < 0.1 or b == True:         
+    if float(serial_deslocamento) < 0.1:         
         if F_Auxiliares.comport.is_open:
             if prensa_ligada == False:
                 F_Auxiliares.comport.write((F_Auxiliares.Liga_Cbr, )) #envia o byte que é o comando de ligar em modo CBR (252) por comunicação serial
                 prensa_ligada = True
             #Cria uma animação na tela que é o grafico de força x deslocamento
-            figura = plt.Figure(figsize=(8, 4), dpi=60,facecolor='orange')
+            figura = plt.Figure(figsize = (8, 4), dpi = 60, facecolor = 'orange')
             ax = figura.add_subplot(facecolor=(.0, .50, .0))
             canva = FigureCanvasTkAgg(figura, tela5)
             canva.get_tk_widget().place(width=1052, height=410, x=290, y=173)
             animar = animation.FuncAnimation(figura, plotar, interval=1000, frames=10)        #gera a animação e chama a função que a "comandara"
-            b = True                                                              #Variavel de controle so pra não gerar um bug na programação
             messagem.botton('Ensaio em andamento!', "green")
         else:
             messagebox.showwarning("ERRO!!!!!", "O computador não esta conectado com a prensa")
@@ -121,7 +114,6 @@ def plotar(i):
         if (desl_max_atual is None or num > desl_max_atual):                                  
             desl_max_atual = num
     if desl_max_atual < deslo_max_ensaio:
-        if len(eixo_y_forca) == len(eixo_x_deslocamento):
             #Gerando grafico em tempo real
             ax.clear()
             ax.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o',color='black')
@@ -130,8 +122,6 @@ def plotar(i):
             ax.set_title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm)', fontsize=28)
             ax.set_xlabel('DESLOCAMENTO (mm)', fontsize=22)
             ax.set_ylabel('FORÇA (Kg/F)', fontsize=22)
-        else:
-            sleep(0.1)
     else:
         F_Auxiliares.comport.write((F_Auxiliares.Retorna_Prensa,)) #byte que retorna a prensa para a posição 0 (deslocamento == 0)
         F_Auxiliares.comport.close()                                                                                #Fecha a comunicação serial
@@ -155,15 +145,12 @@ def parar_ensaio():
 #Volta para a pagina inicial caso o ensaio não tenha ainda não tenha sido iniciado, informa o usuario
 def voltar_pagina():
     global prensa_ligada
-    if prensa_ligada == True:
-        messagem.botton('Ensaio em andamento, se deseja parar o ensaio pressione o botão "PARAR"', "red")
-    else: 
-        tela5.destroy()       
-        run(r"Funcionalidades\P3_FormularioCbr.exe", shell=True)
+    if prensa_ligada == True: messagem.botton('Ensaio em andamento, se deseja parar o ensaio pressione o botão "PARAR"', "red")
+    else: tela5.destroy(); run(r"Funcionalidades\P3_FormularioCbr.exe", shell=True)
 
 #Cria o pdf do relatorio e fecha o aplicativo
 def gerar_relatorio_cbr():    
-    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento, forca_relatorio, deslocamento_relatorio
+    global pastaApp, data_str, eixo_y_forca, eixo_x_deslocamento
 #Connecta com o DB, pega os dados e manipula-os para usalos no relatorio
     conexao = pymysql.connect ( host='localhost', user='root', passwd='',database='db_prensa_software')
     cursor = conexao.cursor()
@@ -229,12 +216,9 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(26), F_Auxiliares.mm_ponto(278), f'{registro}')                         #escreve no pdf no ponto escolhido
     cnv.drawString(F_Auxiliares.mm_ponto(86), F_Auxiliares.mm_ponto(278), f'{dia}')        
     cnv.drawString(F_Auxiliares.mm_ponto(154), F_Auxiliares.mm_ponto(278), f'{id_molde}') 
-    if int(energia) == 12: 
-        x = 'Normal' 
-    elif int(energia) == 26: 
-        x = 'Intermediária'
-    else: 
-        x= 'Modificada'      
+    if int(energia) == 12: x = 'Normal' 
+    elif int(energia) == 26: x = 'Intermediária'
+    else: x = 'Modificada'      
     cnv.drawString(F_Auxiliares.mm_ponto(23), F_Auxiliares.mm_ponto(270), f'{x}')       
     cnv.drawString(F_Auxiliares.mm_ponto(90), F_Auxiliares.mm_ponto(270), f'{energia}')        
     cnv.drawString(F_Auxiliares.mm_ponto(134), F_Auxiliares.mm_ponto(270), f'{amostra}')        
@@ -262,49 +246,38 @@ def gerar_relatorio_cbr():
     cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(149), f'{float(altura_inicial) - float(leitura_exp2)}') 
     cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(142), f'{float(altura_inicial) - float(leitura_exp3)}')
     cnv.drawString(F_Auxiliares.mm_ponto(71), F_Auxiliares.mm_ponto(136), f'{float(altura_inicial) - float(leitura_exp4)}')
-    forca_relatorio.append(0); deslocamento_relatorio.append(0)
-    #Esse loop mostra apenas os valores de força maiores que 0 para exibir no relatorio
-    for cont in eixo_y_forca: 
-        if cont > 0: forca_relatorio.append(cont)
-    for cont in eixo_x_deslocamento: 
-        if cont > 0: deslocamento_relatorio.append(cont)
-    forca_relatorio = forca_relatorio[:-1]; deslocamento_relatorio = deslocamento_relatorio[:-1]
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(218), f'{str(forca_relatorio[0])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(211), f'{str(forca_relatorio[1])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(204), f'{str(forca_relatorio[2])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(198), f'{str(forca_relatorio[3])}')  
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(191), f'{str(forca_relatorio[4])}')  
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(184), f'{str(forca_relatorio[5])}')  
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(177), f'{str(forca_relatorio[6])}')  
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(171), f'{str(forca_relatorio[7])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(164), f'{str(forca_relatorio[8])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(157), f'{str(forca_relatorio[9])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(150), f'{str(forca_relatorio[10])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(144), f'{str(forca_relatorio[11])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(137), f'{str(forca_relatorio[12])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(198), f'{str(forca_relatorio[3])}')
-    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(178), f'{str(forca_relatorio[6])}') 
-    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'{round((((float(forca_relatorio[3]))/70.31)*100),3)}')
-    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'{round((((float(forca_relatorio[6]))/105.46)*100),3)}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(218), f'{str(eixo_y_forca[0])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(211), f'{str(eixo_y_forca[1])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(204), f'{str(eixo_y_forca[2])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(198), f'{str(eixo_y_forca[3])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(191), f'{str(eixo_y_forca[4])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(184), f'{str(eixo_y_forca[5])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(177), f'{str(eixo_y_forca[6])}')  
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(171), f'{str(eixo_y_forca[7])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(164), f'{str(eixo_y_forca[8])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(157), f'{str(eixo_y_forca[9])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(150), f'{str(eixo_y_forca[10])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(144), f'{str(eixo_y_forca[11])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(139), F_Auxiliares.mm_ponto(137), f'{str(eixo_y_forca[12])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(198), f'{str(eixo_y_forca[3])}')
+    cnv.drawString(F_Auxiliares.mm_ponto(167), F_Auxiliares.mm_ponto(178), f'{str(eixo_y_forca[6])}') 
+    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(198), f'{round((((float(eixo_y_forca[3]))/70.31)*100),3)}')
+    cnv.drawString(F_Auxiliares.mm_ponto(188), F_Auxiliares.mm_ponto(178), f'{round((((float(eixo_y_forca[6]))/105.46)*100),3)}') 
     #Cria o um grafico com os valores de força e deslocamento e salva em uma imagem
-    plt.plot(deslocamento_relatorio, forca_relatorio, ls='-', lw=2, marker='o')
-    plt.axis('tight'); plt.grid(True)
+    plt.plot(eixo_x_deslocamento, eixo_y_forca, ls='-', lw=2, marker='o'); plt.axis('tight'); plt.grid(True)
     plt.ylabel('FORÇA (Kg/F)'); plt.xlabel('DESLOCAMENTO (mm)'); plt.title('GRAFICO: FORÇA(Kg/f) x DESLOCAMENTO(mm) ')
     plt.savefig(r"Funcionalidades\grafico_relatorio_cbr.png", dpi=150)
     cnv.drawImage(r"Funcionalidades\grafico_relatorio_cbr.png",            #coloca a imagem no ponto especolhido e no tamanho escolhido
-                  F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(120))
+                  F_Auxiliares.mm_ponto(0), F_Auxiliares.mm_ponto(0), width = F_Auxiliares.mm_ponto(230), height = F_Auxiliares.mm_ponto(120)) 
     cnv.save()
-    print(f'força={forca_relatorio}\ndesloc={deslocamento_relatorio}')
     messagebox.showwarning("Fim do ensaio", "O relatorio foi criado com sucesso e se encontra na pasta de destino")
     tela5.destroy()
 """==================================================================================================================================================
                                              CRIAÇÃO DE WIDGETS,LAYOUT DA TELA E CONECÇÃO COM O BD
 =================================================================================================================================================="""
 #CRIA JANELA DO TKINTER
-tela5 = Tk()
-tela5.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela5.title("Ensaio CBR"); tela5.geometry('1366x705+-11+1')
-img_fundo = PhotoImage(file=r"Funcionalidades\tela_ensaio_cbr.png")
-label_fundo = Label(tela5, image=img_fundo); label_fundo.place(x=0, y=0)
+tela5 = Tk(); tela5.iconbitmap(default=r"Funcionalidades\tela1.ico"); tela5.title("Ensaio CBR"); tela5.geometry('1366x705+-11+1')
+img_fundo = PhotoImage(file=r"Funcionalidades\tela_ensaio_cbr.png"); label_fundo = Label(tela5, image=img_fundo); label_fundo.place(x=0, y=0)
 
 #CONECÇÃO COM AS LABELS DE EXIBIÇÃO DE DADOS DO ENSAIO
 messagem = F_Auxiliares.Messege1(tela5)                     
