@@ -78,9 +78,10 @@ def recebe_dados_serial():
                 sinal_serial = str(F_Auxiliares.comport.readline())                       #leitura da comunicação serial
                 sinal_serial = sinal_serial.replace("b'", ""); sinal_serial = sinal_serial.replace("r", "")
                 sinal_serial = sinal_serial.replace("\\", ""); sinal_serial = (sinal_serial.replace("n'", ""))
-                sinal_serial = sinal_serial.split('z',1); serial_forca = sinal_serial[0]; serial_deslocamento = sinal_serial [1]
+                sinal_serial = sinal_serial.split('z',1); serial_forca = sinal_serial[0]; serial_deslocamento = sinal_serial[1]
                 eixo_y_forca.append(float(serial_forca)) ; eixo_x_deslocamento.append(float(serial_deslocamento))
                 messagem.forca(serial_forca); messagem.deslocamento(serial_deslocamento)
+                print(sinal_serial)
             except IOError:
                 messagem.forca("ERRO!"); messagem.deslocamento("ERRO!")
     

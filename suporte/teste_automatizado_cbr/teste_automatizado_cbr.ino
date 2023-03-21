@@ -5,6 +5,7 @@
 valor indica que o ensaio esta encerrado. 
   */
 int Estado;
+String x;
 
 void setup() {
   Serial.begin(256000);       //DEFINE INICIO E 'VELOCIDADE' DA COMUNICAÇÃO SERIAL
@@ -17,44 +18,44 @@ void loop() {
   if (Serial.available() > 0) {                  //verifica se a dados sendo recebidos por meio da comunicação serial       
     Estado = Serial.read();                     // se estiver recebendo os dados os atribui à variavel Estado
   }
-
+  
   if (Estado==252){ 
-    digitalWrite(13,1);                    
-    Serial.println('0.0z0.0');          //força
+    digitalWrite(13,1);            
+    Serial.println("0.0z0.0");          //força
+    delay(1000); 
+    Serial.println("320.0z0.63");
     delay(1000);
-    Serial.println('320.0z0.63');
-    delay(1000);
-    Serial.println('660.0z1.27');
+    Serial.println("660.0z1.27");
     delay(1000);    
-    Serial.println('930.0z1.90');
+    Serial.println("930.0z1.90");
     delay(1000);  
-    Serial.println('1120.0z2.54');
+    Serial.println("1120.0z2.54");
     delay(1000);
-    Serial.println('1270.0z3.17');
+    Serial.println("1270.0z3.17");
     delay(1000);
-    Serial.println('1420.0z3.81'); 
+    Serial.println("1420.0z3.81"); 
     delay(1000);
-    Serial.println('1620.0z5.80'); 
+    Serial.println("1620.0z5.08"); 
     delay(1000);
-    Serial.println('1790.0z6.35'); 
+    Serial.println("1790.0z6.35"); 
     delay(1000);
-    Serial.println('1990.0z7.32');
+    Serial.println("1990.0z7.32");
     delay(1000);
-    Serial.println('2230.0z8.89'); 
+    Serial.println("2230.0z8.89"); 
     delay(1000);
-    Serial.println('2440.0z10.16'); 
+    Serial.println("2440.0z10.16"); 
     delay(1000);
-    Serial.println('2670.0z11.43'); 
+    Serial.println("2670.0z11.43"); 
     delay(1000);
-    Serial.println('2915.0z12.70');    
+    Serial.println("2915.0z12.70");    
     delay(1000);
-    Serial.println('3535.0z13.58');    
+    Serial.println("3535.0z13.58");    
     delay(1000);
   }
   else{
     digitalWrite(13,0);    
-    Serial.println('0.0z0.0');
+    Serial.println("0.0z0.0");
     delay(300);   
-    }  
+    }   
 }
 
